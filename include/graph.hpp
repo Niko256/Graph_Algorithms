@@ -8,7 +8,7 @@
 template <typename VertexType, typename WeightType>
 class Graph {
 private:
-    size_t vertex_count_; // count of vertices
+    size_t vertex_count_; // Count of vertices
     bool directed_;
     DynamicArray<DynamicArray<Pair<VertexType, WeightType>>> adjacency_list_;
 
@@ -67,23 +67,42 @@ public:
         }
     }
 
-
+   
     void remove_vertex(VertexType vertex) {
-        if (vertex >= vertex_count_) throw std::out_of_range("index of this vertex is out of range");
+        if (vertex >= vertex_count_) throw std::out_of_range("out of range");
 
         for (size_t i = 0; i < vertex_count_; ++i) {
-            remove_edge(i, vertex);
-            remove_edge(vertex, i);
+            if (i != vertex) {
+                auto& edges = adjacency_list_[i];
+                for (auto it = edges.begin(); it != edges.end(); ) {
+                    if ((*it).first_ == vertex) {
+                        it = edges.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
         }
 
         adjacency_list_[vertex].clear();
 
+        for (size_t i = 0; i < vertex_count_; ++i) {
+            auto& edges = adjacency_list_[i];
+            for (auto& edge : edges) {
+                if (edge.first_ > vertex) {
+                    --edge.first_;
+                }
+            }
+        }
+
         for (size_t i = vertex; i < vertex_count_ - 1; ++i) {
             adjacency_list_[i] = std::move(adjacency_list_[i + 1]);
         }
+        adjacency_list_.resize(vertex_count_ - 1);
 
         --vertex_count_;
     }
+
 
     bool has_edge(VertexType from, VertexType to) const {
         if (from >= vertex_count_ || to >= vertex_count_) throw std::out_of_range("out of range");
