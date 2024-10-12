@@ -150,102 +150,151 @@ public:
         return adjacency_list_.cend();
     }
 
+
 // Algorithms
-    
-    // Graph Traversal
-    DynamicArray<VertexType> bfs(VertexType start) const;
-    DynamicArray<VertexType> dfs(VertexType start) const;
-    DynamicArray<VertexType> topological_sort() const;
+ 
+    // Graph traversal
+    void depth_first_search(VertexType start);
+    void breadth_first_search(VertexType start);
+    void topological_sort();
+    void dfs_with_timing(VertexType start);
 
     // Connectivity
-    DynamicArray<DynamicArray<VertexType>> find_connected_components() const;
-    DynamicArray<Pair<VertexType, VertexType>> find_bridges() const;
-    DynamicArray<VertexType> find_articulation_points() const;
-    DynamicArray<DynamicArray<VertexType>> kosaraju_scc() const;
-    DynamicArray<DynamicArray<VertexType>> tarjan_scc() const;
-    DynamicArray<DynamicArray<VertexType>> find_biconnected_components() const;
+    void find_connected_components();
+    void find_bridges_and_articulation_points();
+    void kosaraju_scc();
+    void find_biconnected_components();
 
     // Shortest paths
-    DynamicArray<WeightType> dijkstra(VertexType start) const;
-    DynamicArray<WeightType> bellman_ford(VertexType start) const;
-    DynamicArray<DynamicArray<WeightType>> floyd_warshall() const;
-    DynamicArray<DynamicArray<WeightType>> jonson_all_pairs_shortest_paths() const;
-    DynamicArray<VertexType> shortest_path_unweighted(VertexType from, VertexType to) const;
+    void dijkstra(VertexType start);
+    void bellman_ford(VertexType start);
+    void floyd_warshall();
+    void johnson();
+    void shortest_paths_unweighted(VertexType start);
 
-    // Maximum flow and maximum cut 
-    WeightType floyd_fulkerson(VertexType source, VertexType sink) const;
-    WeightType edmonds_karp(VertexType source, VertexType sink) const;
-    WeightType dinic(VertexType source, VertexType sink) const;
-    WeightType goldberg_tarjan(VertexType source, VertexType sink) const;
-    WeightType karger_stein(VertexType source, VertexType sink) const;
+    // Maximum flow and minimum cut
+    void ford_fulkerson(VertexType source, VertexType sink);
+    void edmonds_karp(VertexType source, VertexType sink);
+    void dinic(VertexType source, VertexType sink);
+    void goldberg_tarjan(VertexType source, VertexType sink);
+    void karger_stein();
 
     // Matchings
-    DynamicArray<Pair<VertexType, VertexType>> kuhn_max_matchings() const;
-    DynamicArray<Pair<VertexType, VertexType>> edmonds_max_matching() const;
-    DynamicArray<Pair<VertexType, VertexType>> hopcroft_karp_max_matching() const;
+    void kuhn_max_matching();
+    void edmonds_max_matching();
+    void hopcroft_karp();
 
     // Trees
-    Graph<VertexType, WeightType> kruskal_mst() const;
-    Graph<VertexType, WeightType> prim_mst() const;
-    Graph<VertexType, WeightType> boruvka_mst() const;
-    Graph<VertexType, WeightType> lca(VertexType u, VertexType v) const;
-    void heavy_light_decomposition() const;
+    void kruskal();
+    void prim();
+    void boruvka();
+    void lca(VertexType u, VertexType v);
+    void heavy_light_decomposition();
 
     // Planarity
-    bool is_planar() const;
-    bool is_outerplanar() const;
-    Graph<VertexType, WeightType> frucht_reingold_mst() const;
+    void kuratowski_planarity_test();
+    void outer_planarity_test();
+    void fruchterman_reingold();
 
     // Network and flows
-    WeightType max_flow(VertexType source, VertexType sink) const;
-    DynamicArray<Pair<VertexType, VertexType>> min_cut(VertexType source, VertexType sink) const;
-    DynamicArray<WeightType> min_cost_flow(VertexType source, VertexType sink, WeightType max_flow) const;
-    DynamicArray<Pair<VertexType, VertexType>> min_cost_assignment() const;
+    void max_flow_in_network(VertexType source, VertexType sink);
+    void min_cut_in_network(VertexType source, VertexType sink);
+    void min_cost_flow(VertexType source, VertexType sink);
+    void assignment_problem();
 
-    // Heuristic Algorithms
-    Graph<VertexType, WeightType> greedy_mst() const;
-    DynamicArray<VertexType> christofides_tsp() const;
-    DynamicArray<VertexType> two_opt_tsp() const;
+    // Heuristic algorithms
+    void greedy_algorithms();
+    void christofides_algorithm();
+    void local_search();
 
-    // Random Graphs
-    Graph<VertexType, WeightType> generate_erdos_renyi(size_t n, double p);
-    Graph<VertexType, WeightType> generate_barabasi_albert(size_t n, size_t m);
-    Graph<VertexType, WeightType> generate_random_graph(size_t n, size_t m);
-    Graph<VertexType, WeightType> generate_regular_graph(size_t n, size_t k);
-    Graph<VertexType, WeightType> generate_degree_distribution_graph(size_t n, const DynamicArray<size_t>& degrees);
+    // Random graphs
+    void erdos_renyi_model();
+    void barabasi_albert_model();
+    void random_graph_generation();
+    void random_graph_properties();
 
-    // Algorithms on WeightTypeed Graphs
-    DynamicArray<WeightType> dijkstra_with_potentials(VertexType start, const DynamicArray<WeightType>& potentials) const;
-    DynamicArray<WeightType> bellman_ford_with_negative_cycles(VertexType start) const;
-    DynamicArray<DynamicArray<WeightType>> johnson_all_pairs_shortest_paths_with_potentials() const;
+    // Algorithms on dynamic graphs
+    void dynamic_mst();
+    void dynamic_connectivity();
+    void dynamic_shortest_paths();
 
-    // Algorithms on Directed Graphs
-    DynamicArray<DynamicArray<VertexType>> tarjan_scc_directed() const;
-    DynamicArray<DynamicArray<VertexType>> kosaraju_scc_directed() const;
-    DynamicArray<DynamicArray<bool>> floyd_warshall_transitive_closure() const;
+    // Algorithms on graphs with constraints
+    void max_flow_with_capacity_constraints(VertexType source, VertexType sink);
+    void max_flow_with_time_constraints(VertexType source, VertexType sink);
+    void max_flow_with_cost_constraints(VertexType source, VertexType sink);
 
-    // Traveling Salesman Problem (TSP)
-    DynamicArray<VertexType> tsp_nearest_neighbor() const;
-    DynamicArray<VertexType> tsp_two_opt() const;
-    DynamicArray<VertexType> tsp_christofides() const;
-    DynamicArray<VertexType> tsp_branch_and_bound() const;
-    DynamicArray<VertexType> tsp_genetic_algorithm() const;
+    // Algorithms on graphs with weights
+    void dijkstra_with_potentials(VertexType start);
+    void bellman_ford_with_negative_cycles(VertexType start);
+    void johnson_all_pairs_shortest_paths();
 
-    // Multi-Objective Search
-    DynamicArray<VertexType> epsilon_constrained_search(VertexType start, const DynamicArray<WeightType>& constraints) const;
-    DynamicArray<VertexType> pareto_front_search(VertexType start) const;
-    DynamicArray<VertexType> nsga_ii(VertexType start) const;
-    DynamicArray<VertexType> spea2(VertexType start) const;
+    // Algorithms on graphs with orientation
+    void tarjan_scc();
+    void kosaraju_scc_oriented();
+    void floyd_warshall_transitive_closure();
 
-    // Knapsack Problem
-    DynamicArray<VertexType> knapsack_greedy(WeightType capacity) const;
-    DynamicArray<VertexType> knapsack_dynamic_programming(WeightType capacity) const;
-    DynamicArray<VertexType> knapsack_branch_and_bound(WeightType capacity) const;
-    DynamicArray<VertexType> knapsack_genetic_algorithm(WeightType capacity) const;
+    // Algorithms on graphs with time constraints
+    void dijkstra_with_time_constraints(VertexType start);
+    void bellman_ford_with_time_constraints(VertexType start);
+    void floyd_warshall_with_time_constraints();
 
-    // Graph Generation with Given Topology and Size
-    Graph<VertexType, WeightType> generate_random_graph_with_topology(size_t n, size_t m, const DynamicArray<Pair<VertexType, VertexType>>& topology);
-    Graph<VertexType, WeightType> generate_regular_graph_with_degree(size_t n, size_t k);
-    Graph<VertexType, WeightType> generate_graph_with_degree_distribution(size_t n, const DynamicArray<size_t>& degrees);
-    Graph<VertexType, WeightType> generate_graph_with_diameter(size_t n, size_t diameter);
+    // Algorithms on graphs with cost constraints
+    void dijkstra_with_cost_constraints(VertexType start);
+    void bellman_ford_with_cost_constraints(VertexType start);
+    void floyd_warshall_with_cost_constraints();
+
+    // Algorithms on graphs with capacity constraints
+    void ford_fulkerson_with_capacity_constraints(VertexType source, VertexType sink);
+    void edmonds_karp_with_capacity_constraints(VertexType source, VertexType sink);
+    void dinic_with_capacity_constraints(VertexType source, VertexType sink);
+
+    // Algorithms on graphs with time and cost constraints
+    void dijkstra_with_time_and_cost_constraints(VertexType start);
+    void bellman_ford_with_time_and_cost_constraints(VertexType start);
+    void floyd_warshall_with_time_and_cost_constraints();
+
+    // Algorithms on graphs with time, cost, and capacity constraints
+    void dijkstra_with_time_cost_and_capacity_constraints(VertexType start);
+    void bellman_ford_with_time_cost_and_capacity_constraints(VertexType start);
+    void floyd_warshall_with_time_cost_and_capacity_constraints();
+
+    // Algorithms on graphs with time, cost, capacity, and orientation constraints
+    void dijkstra_with_time_cost_capacity_and_orientation_constraints(VertexType start);
+    void bellman_ford_with_time_cost_capacity_and_orientation_constraints(VertexType start);
+    void floyd_warshall_with_time_cost_capacity_and_orientation_constraints();
+
+    // Traveling Salesman Problem
+    void nearest_neighbor_tsp();
+    void two_opt_tsp();
+    void christofides_tsp();
+    void branch_and_bound_tsp();
+    void genetic_algorithm_tsp();
+
+    // Multi-criteria search
+    void epsilon_constrained_search();
+    void pareto_front_search();
+    void nsga_ii();
+    void spea2();
+
+    // Implementation of the "Lattice" ADT
+    void lattice_operations();
+    void lattice_path_search();
+    void lattice_with_obstacles();
+    void lattice_with_weights();
+
+    // Path search with the highest capacity
+    void ford_fulkerson_max_capacity_path(VertexType source, VertexType sink);
+    void dinic_max_capacity_path(VertexType source, VertexType sink);
+
+    // Knapsack problem
+    void knapsack_greedy();
+    void knapsack_dynamic_programming();
+    void knapsack_branch_and_bound();
+    void knapsack_genetic_algorithm();
+
+    // Graph generalization with given topology and size
+    void generate_random_graph_with_topology();
+    void generate_regular_graph();
+    void generate_graph_with_degree_distribution();
+    void generate_graph_with_diameter();
 };

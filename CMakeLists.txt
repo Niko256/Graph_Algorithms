@@ -8,14 +8,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++20")
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/../Data_Structures) 
-
 
 find_package(GTest REQUIRED)
 
 if(GTEST_FOUND)
     file(GLOB_RECURSE SRC_FILES src/*.cpp)
-    add_executable(Graphs ${SRC_FILES})
+    file(GLOB_RECURSE ALGORITHM_FILES src/algorithms/*.cpp)
+    set(ALL_SRC_FILES ${SRC_FILES} ${ALGORITHM_FILES})
+
+    add_executable(Graphs ${ALL_SRC_FILES})
     target_compile_options(Graphs PRIVATE -std=c++20)
 
     file(GLOB_RECURSE TEST_FILES tests/*.cpp)
