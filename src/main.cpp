@@ -14,12 +14,5 @@ int main() {
 
     graph.depth_first_search(0);
 
-    std::string command = "python3 ../visualization/visualize.py ../visualization/data/graph_data.txt";
-    int result = std::system(command.c_str());
-
-    if (result != 0) {
-        std::cerr << "Error running visualization script" << std::endl;
-    }
-
     return 0;
 }

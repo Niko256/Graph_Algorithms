@@ -28,3 +28,16 @@ if(GTEST_FOUND)
     enable_testing()
     add_test(NAME basic_tests COMMAND basic_tests)
 endif()
+
+add_custom_target(visualize
+    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_SOURCE_DIR}/visualization" ${CMAKE_SOURCE_DIR}/visualization/visualize.py
+    DEPENDS Graphs
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Running Manim visualization"
+)
+
+add_custom_command(
+    TARGET visualize PRE_BUILD
+    COMMAND chmod +x ${CMAKE_SOURCE_DIR}/visualization/visualize.py
+    COMMENT "Setting execute permissions for Manim script"
+)

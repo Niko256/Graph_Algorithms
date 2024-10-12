@@ -1,9 +1,12 @@
 #pragma once
 #include <algorithm>
 #include <cstddef>
+#include <fstream>
+#include <iostream>
 #include <stdexcept>
 #include "../../Data_Structures/Pair.hpp"
 #include "../../Data_Structures/Dynamic_Array.hpp"
+#include "cerrno"
 
 template <typename VertexType, typename WeightType>
 class Graph {
@@ -120,6 +123,28 @@ public:
         return adjacency_list_[vertex];
     }
 
+
+    void log_state(const std::string& log_file, const std::string& step_description) const {
+        std::ofstream log(log_file, std::ios::app);
+        if (!log.is_open()) {
+            throw std::runtime_error("Failed to open log file");
+        }
+
+        log << "Step: " << step_description << "\n";
+        log << "Vertex Count: " << vertex_count_ << "\n";
+        log << "Directed: " << (directed_ ? "true" : "false") << "\n";
+
+        for (size_t i = 0; i < vertex_count_; ++i) {
+            log << "Vertex " << i << " -> ";
+            const auto& edges = adjacency_list_[i];
+            for (auto it = edges.cbegin(); it != edges.cend(); ++it) {
+                log << "(" << (*it).first_ << ", " << (*it).second_ << ") ";
+            }
+            log << "\n";
+        }
+        log << "----------------------------------------\n";
+        log.close();
+    }
 
     constexpr size_t vertex_count() const noexcept { return vertex_count_; }
 
