@@ -1,18 +1,17 @@
 #include <iostream>
 #include "../include/graph.hpp"
-#include <fstream>
-#include <string>
-#include <cstdlib>
+
+
+
 
 
 int main() {
-    Graph<int, int> graph(5);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
-    graph.add_edge(2, 3, 30);
-    graph.add_edge(3, 4, 40);
-
-    graph.depth_first_search(0);
-
+    Graph<int, int> g(6, false); 
+    g.add_edge(0, 1, 4);
+    g.add_edge(0, 2, 2);
+    g.add_edge(1, 3, 5);
+    g.add_edge(2, 4, 1);
+    g.add_edge(3, 5, 3);
+    g.add_edge(4, 5, 7);
     return 0;
 }
