@@ -3,10 +3,16 @@
 #include <cstddef>
 #include <fstream>
 #include <iostream>
+#include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
-#include "../../Data_Structures/Pair.hpp"
-#include "../../Data_Structures/Dynamic_Array.hpp"
+#include "../../Data_Structures/Containers/Pair.hpp"
+#include "../../Data_Structures/Containers/Dynamic_Array.hpp"
 #include "cerrno"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
+
 
 template <typename VertexType, typename WeightType>
 class Graph {
@@ -118,6 +124,37 @@ public:
 
     }
 
+
+    json to_json() {
+        json j;
+        j["vertex_count"] = vertex_count_;
+        j["directed"] = directed_;
+        j["edges"] = json::array();
+
+        for (size_t i = 0; i < vertex_count_; ++i) {
+            for (auto& edge : adjacency_list_[i]) {
+                j["edges"].push_back({
+                    {"from", i},
+                    {"to", edge.first_},
+                    {"weight", edge.second_}
+                });
+            }
+        }
+
+        return j;
+    }
+
+    void save_to_json(const std::string& filename) {
+        json j = to_json();
+        std::ofstream file(filename);
+
+        if (!file.is_open()) {
+            throw std::runtime_error("Failed to open file for saving graph parameters");
+        }
+
+        file << j.dump(4);  
+        file.close();
+    }
 
     const DynamicArray<Pair<VertexType, WeightType>>& get_adjacency_list(VertexType vertex) const {
         return adjacency_list_[vertex];
