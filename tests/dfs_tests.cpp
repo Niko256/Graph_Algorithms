@@ -44,6 +44,3 @@ TEST(DFSTest, IsolatedVerticesGraph) {
 
     EXPECT_EQ(graph.vertex_count(), 3);
 }
-
-
-
