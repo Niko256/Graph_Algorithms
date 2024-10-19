@@ -13,7 +13,6 @@
 using json = nlohmann::json;
 
 
-
 template <typename VertexType, typename WeightType>
 class Graph {
 private:
