@@ -1,9 +1,8 @@
-
 #include "../../include/graph.hpp"
 #include "../../../Data_Structures/Containers/Queue.hpp"
 #include "../../../Data_Structures/Containers/Dynamic_Array.hpp"
 
-size_t g_timer = 0;
+size_t bfs_timer = 0;
 
 
 template <typename VertexType, typename WeightType>
@@ -21,7 +20,7 @@ void Graph<VertexType, WeightType>::breadth_first_search(VertexType start) {
 
     queue.enqueue(start);
     colors[start] = 1; // Mark the starting vertex as gray 
-    discovery_time[start] = g_timer++;
+    discovery_time[start] = bfs_timer++;
 
     while (!queue.empty()) {
         VertexType current = queue.front();
@@ -33,14 +32,12 @@ void Graph<VertexType, WeightType>::breadth_first_search(VertexType start) {
             if (colors[neighbour_vertex] == 0) {
                 queue.enqueue(neighbour_vertex);
                 colors[neighbour_vertex] = 1;
-                discovery_time[neighbour_vertex] = g_timer++;
+                discovery_time[neighbour_vertex] = bfs_timer++;
             }
         }
 
         colors[current] = 2;
-        finish_time[current] = g_timer++;
+        finish_time[current] = bfs_timer++;
     }
 }
 
-
-template void Graph<int, int>::breadth_first_search(int start);

@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <fstream>
-#include <iostream>
 #include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
 #include "../../Data_Structures/Containers/Pair.hpp"
@@ -20,200 +19,57 @@ private:
     bool directed_;
     DynamicArray<DynamicArray<Pair<VertexType, WeightType>>> adjacency_list_;
 
-    void resize(size_t new_size) {
-        if (new_size >= adjacency_list_.size()) {
-            adjacency_list_.resize(new_size);
-        }
-    }
+    DynamicArray<int> discovery_time_;
+    DynamicArray<int> finish_time_;
+
+
+    void resize(size_t new_size);
 
 public:
-    Graph() : vertex_count_(0), directed_(false) {}
+    Graph();
 
-    Graph(size_t vertex, bool dir = false) : vertex_count_(vertex), directed_(dir) {
-        adjacency_list_.resize(vertex);
-    }
+    Graph(size_t vertex, bool dir = false);
 
-    void add_edge(VertexType from, VertexType to, WeightType weight) {
-        if (from >= vertex_count_ || to >= vertex_count_) {
-            resize(std::max(from, to) + 1);
-        }
+    void add_edge(VertexType from, VertexType to, WeightType weight);
 
-        adjacency_list_[from].push_back(std::move(Pair(to, weight)));
+    void add_vertex();
 
-        if (!directed_) {
-            adjacency_list_[to].push_back(std::move(Pair(from, weight))); 
-        }
-    }
+    void remove_edge(VertexType from, VertexType to);
 
-    void add_vertex() {
-        if (vertex_count_ >= adjacency_list_.size()) {
-            adjacency_list_.resize(2 * vertex_count_);
-        }
-        ++vertex_count_;
-    }
+    void remove_vertex(VertexType vertex);
 
+    bool has_edge(VertexType from, VertexType to) const;
 
-    void remove_edge(VertexType from, VertexType to) {
-        if (from >= vertex_count_ || to >= vertex_count_) throw std::out_of_range("out of range");
+    json to_json();
 
-        auto& edges = adjacency_list_[from];
-        for (auto it = edges.begin(); it != edges.end(); ++it) {
-            if ((*it).first_ == to) {
-                edges.erase(it);
-                break;
-            }
-        }
+    void save_to_json(const std::string& filename);
 
-        if (!directed_) {
-            auto& reversed_edges = adjacency_list_[to];
-            for (auto it = reversed_edges.begin(); it != reversed_edges.end(); ++it) {
-                if ((*it).first_ == from) {
-                    reversed_edges.erase(it);
-                    break;
-                }
-            }
-        }
-    }
+    const DynamicArray<Pair<VertexType, WeightType>>& get_adjacency_list(VertexType vertex) const;
 
-   
-    void remove_vertex(VertexType vertex) {
-        if (vertex >= vertex_count_) throw std::out_of_range("out of range");
+    void log_state(const std::string& log_file, const std::string& step_description) const;
 
-        for (size_t i = 0; i < vertex_count_; ++i) {
-            if (i != vertex) {
-                auto& edges = adjacency_list_[i];
-                for (auto it = edges.begin(); it != edges.end(); ) {
-                    if ((*it).first_ == vertex) {
-                        it = edges.erase(it);
-                    } else {
-                        ++it;
-                    }
-                }
-            }
-        }
+    constexpr size_t vertex_count() const noexcept;
 
-        adjacency_list_[vertex].clear();
+    constexpr bool is_directed() const noexcept;
 
-        for (size_t i = 0; i < vertex_count_; ++i) {
-            auto& edges = adjacency_list_[i];
-            for (auto& edge : edges) {
-                if (edge.first_ > vertex) {
-                    --edge.first_;
-                }
-            }
-        }
+    void clear();
 
-        for (size_t i = vertex; i < vertex_count_ - 1; ++i) {
-            adjacency_list_[i] = std::move(adjacency_list_[i + 1]);
-        }
-        adjacency_list_.resize(vertex_count_ - 1);
+    const DynamicArray<int>& get_discovery_time() const;
 
-        --vertex_count_;
-    }
-
-
-    bool has_edge(VertexType from, VertexType to) const {
-        if (from >= vertex_count_ || to >= vertex_count_) throw std::out_of_range("out of range");
-
-        const auto& edges = adjacency_list_[from];
-        for (auto it = edges.cbegin(); it != edges.cend(); ++it) {
-            if ((*it).first_ == to) return true;
-        }
-        return false;
-
-    }
-
-
-    json to_json() {
-        json j;
-        j["vertex_count"] = vertex_count_;
-        j["directed"] = directed_;
-        j["edges"] = json::array();
-
-        for (size_t i = 0; i < vertex_count_; ++i) {
-            for (auto& edge : adjacency_list_[i]) {
-                j["edges"].push_back({
-                    {"from", i},
-                    {"to", edge.first_},
-                    {"weight", edge.second_}
-                });
-            }
-        }
-
-        return j;
-    }
-
-    void save_to_json(const std::string& filename) {
-        json j = to_json();
-        std::ofstream file(filename);
-
-        if (!file.is_open()) {
-            throw std::runtime_error("Failed to open file for saving graph parameters");
-        }
-
-        file << j.dump(4);  
-        file.close();
-    }
-
-    const DynamicArray<Pair<VertexType, WeightType>>& get_adjacency_list(VertexType vertex) const {
-        return adjacency_list_[vertex];
-    }
-
-
-    void log_state(const std::string& log_file, const std::string& step_description) const {
-        std::ofstream log(log_file, std::ios::app);
-        if (!log.is_open()) {
-            throw std::runtime_error("Failed to open log file");
-        }
-
-        log << "Step: " << step_description << "\n";
-        log << "Vertex Count: " << vertex_count_ << "\n";
-        log << "Directed: " << (directed_ ? "true" : "false") << "\n";
-
-        for (size_t i = 0; i < vertex_count_; ++i) {
-            log << "Vertex " << i << " -> ";
-            const auto& edges = adjacency_list_[i];
-            for (auto it = edges.cbegin(); it != edges.cend(); ++it) {
-                log << "(" << (*it).first_ << ", " << (*it).second_ << ") ";
-            }
-            log << "\n";
-        }
-        log << "----------------------------------------\n";
-        log.close();
-    }
-
-    constexpr size_t vertex_count() const noexcept { return vertex_count_; }
-
-    constexpr bool is_directed() const noexcept { return directed_; }
-
-    void clear() {
-        for (size_t i = 0; i < vertex_count_; ++i) {
-            adjacency_list_[i].clear();
-        } 
-        vertex_count_ = 0;
-    }
-
+    const DynamicArray<int>& get_finish_time() const;
 
     // Iterations
-    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator begin() noexcept {
-        return adjacency_list_.begin();
-    }
+    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator begin() noexcept;
 
-    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::const_iterator cbegin() const noexcept {
-        return adjacency_list_.cbegin();
-    }
+    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::const_iterator cbegin() const noexcept;
 
-    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator end() noexcept {
-        return adjacency_list_.end();
-    }
+    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator end() noexcept;
 
-    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::const_iterator cend() const noexcept {
-        return adjacency_list_.cend();
-    }
+    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::const_iterator cend() const noexcept;
 
 
 // Algorithms
- 
+
     // Graph traversal
     void depth_first_search(VertexType start);
     void breadth_first_search(VertexType start);
@@ -359,3 +215,7 @@ public:
     void generate_graph_with_degree_distribution();
     void generate_graph_with_diameter();
 };
+
+#include "../src/graph.tpp"
+#include "../src/algorithms/dfs.tpp"
+#include "../src/algorithms/bfs.tpp"

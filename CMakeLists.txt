@@ -12,20 +12,26 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 find_package(GTest REQUIRED)
 find_package(nlohmann_json 3.11.3 REQUIRED)  
 
+file(GLOB_RECURSE SRC_FILES src/*.cpp)
+file(GLOB_RECURSE ALGORITHM_FILES src/algorithms/*.tpp)
+file(GLOB_RECURSE GRAPH_FILES src/graph.tpp)
+set(ALL_SRC_FILES ${SRC_FILES} ${ALGORITHM_FILES} ${GRAPH_FILES})
+
+
+add_executable(main ${ALL_SRC_FILES})
+target_compile_options(main PRIVATE -std=c++20)
+target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)  
+
 if(GTEST_FOUND)
-    file(GLOB_RECURSE SRC_FILES src/*.cpp)
-    file(GLOB_RECURSE ALGORITHM_FILES src/algorithms/*.cpp)
-    set(ALL_SRC_FILES ${SRC_FILES} ${ALGORITHM_FILES})
-
-    add_executable(Graphs ${ALL_SRC_FILES})
-    target_compile_options(Graphs PRIVATE -std=c++20)
-    target_link_libraries(Graphs PRIVATE nlohmann_json::nlohmann_json)  
-
     file(GLOB_RECURSE TEST_FILES tests/*.cpp)
-    add_executable(basic_tests ${TEST_FILES})
-    target_compile_options(basic_tests PRIVATE -std=c++20)
-    target_link_libraries(basic_tests GTest::GTest GTest::Main nlohmann_json::nlohmann_json)  
 
-    enable_testing()
-    add_test(NAME basic_tests COMMAND basic_tests)
+    foreach(TEST_FILE ${TEST_FILES})
+        get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+        add_executable(${TEST_NAME} ${TEST_FILE})
+        target_compile_options(${TEST_NAME} PRIVATE -std=c++20)
+        target_link_libraries(${TEST_NAME} GTest::GTest GTest::Main nlohmann_json::nlohmann_json)  
+
+        enable_testing()
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    endforeach()
 endif()
