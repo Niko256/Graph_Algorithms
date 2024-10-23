@@ -18,9 +18,9 @@ file(GLOB_RECURSE GRAPH_FILES src/graph.tpp)
 set(ALL_SRC_FILES ${SRC_FILES} ${ALGORITHM_FILES} ${GRAPH_FILES})
 
 
-add_executable(main ${ALL_SRC_FILES})
-target_compile_options(main PRIVATE -std=c++20)
-target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)  
+add_executable(graphs ${ALL_SRC_FILES})
+target_compile_options(graphs PRIVATE -std=c++20)
+target_link_libraries(graphs PRIVATE nlohmann_json::nlohmann_json)  
 
 if(GTEST_FOUND)
     file(GLOB_RECURSE TEST_FILES tests/*.cpp)

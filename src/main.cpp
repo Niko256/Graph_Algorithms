@@ -9,15 +9,12 @@ namespace fs = std::filesystem;
 
 void create_graph_parameters_file(const std::string& filename) {
     int vertex_count;
-    bool directed;
     std::vector<std::tuple<int, int, int>> edges;
     std::vector<bool> is_empty_vertex;
 
     std::cout << "Enter vertex count: ";
     std::cin >> vertex_count;
 
-    std::cout << "Is the graph directed? (1 for yes, 0 for no): ";
-    std::cin >> directed;
 
     is_empty_vertex.resize(vertex_count, false);
     std::cout << "Enter indices of empty vertices (enter -1 to stop):" << std::endl;
@@ -45,7 +42,7 @@ void create_graph_parameters_file(const std::string& filename) {
         }
     }
 
-    Graph<int, int> graph(vertex_count, directed);
+    Graph<int, int> graph(vertex_count);
     for (const auto& [from, to, weight] : edges) {
         graph.add_edge(from, to, weight);
     }
@@ -58,6 +55,7 @@ void create_graph_parameters_file(const std::string& filename) {
 
     graph.save_to_json(filename);
 }
+
 
 int main() {
     std::string directory = "files";

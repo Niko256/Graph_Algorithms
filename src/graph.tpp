@@ -12,14 +12,15 @@ using json = nlohmann::json;
 
 
 template <typename VertexType, typename WeightType>
-Graph<VertexType, WeightType>::Graph() : vertex_count_(0), directed_(false) {}
+Graph<VertexType, WeightType>::Graph() : vertex_count_(0) {}
 
 template <typename VertexType, typename WeightType>
-Graph<VertexType, WeightType>::Graph(size_t vertex, bool dir) : vertex_count_(vertex), directed_(dir) {
+Graph<VertexType, WeightType>::Graph(size_t vertex) : vertex_count_(vertex) {
     adjacency_list_.resize(vertex);
     discovery_time_ = DynamicArray<int>(vertex, 0);
     finish_time_ = DynamicArray<int>(vertex, 0);
 }
+
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::resize(size_t new_size) {
@@ -37,20 +38,23 @@ void Graph<VertexType, WeightType>::add_edge(VertexType from, VertexType to, Wei
         resize(std::max(from, to) + 1);
     }
 
-    adjacency_list_[from].push_back(std::move(Pair(to, weight)));
+    adjacency_list_[from].emplace_back(std::move(Pair(to, weight)));
 
-    if (!directed_) {
-        adjacency_list_[to].push_back(std::move(Pair(from, weight)));
-    }
+    adjacency_list_[to].emplace_back(std::move(Pair(from, weight)));
+
 }
+
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::add_vertex() {
     if (vertex_count_ >= adjacency_list_.size()) {
         adjacency_list_.resize(2 * vertex_count_);
+        discovery_time_.resize(2 * vertex_count_);
+        finish_time_.resize(2 * vertex_count_);
     }
     ++vertex_count_;
 }
+
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::remove_edge(VertexType from, VertexType to) {
@@ -64,7 +68,6 @@ void Graph<VertexType, WeightType>::remove_edge(VertexType from, VertexType to) 
         }
     }
 
-    if (!directed_) {
         auto& reversed_edges = adjacency_list_[to];
         for (auto it = reversed_edges.begin(); it != reversed_edges.end(); ++it) {
             if ((*it).first_ == from) {
@@ -72,8 +75,8 @@ void Graph<VertexType, WeightType>::remove_edge(VertexType from, VertexType to) 
                 break;
             }
         }
-    }
 }
+
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::remove_vertex(VertexType vertex) {
@@ -111,6 +114,7 @@ void Graph<VertexType, WeightType>::remove_vertex(VertexType vertex) {
     --vertex_count_;
 }
 
+
 template <typename VertexType, typename WeightType>
 bool Graph<VertexType, WeightType>::has_edge(VertexType from, VertexType to) const {
     if (from >= vertex_count_ || to >= vertex_count_) throw std::out_of_range("out of range");
@@ -122,11 +126,11 @@ bool Graph<VertexType, WeightType>::has_edge(VertexType from, VertexType to) con
     return false;
 }
 
+
 template <typename VertexType, typename WeightType>
 json Graph<VertexType, WeightType>::to_json() {
     json j;
     j["vertex_count"] = vertex_count_;
-    j["directed"] = directed_;
     j["edges"] = json::array();
 
     for (size_t i = 0; i < vertex_count_; ++i) {
@@ -141,6 +145,7 @@ json Graph<VertexType, WeightType>::to_json() {
 
     return j;
 }
+
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::save_to_json(const std::string& filename) {
@@ -160,34 +165,11 @@ const DynamicArray<Pair<VertexType, WeightType>>& Graph<VertexType, WeightType>:
     return adjacency_list_[vertex];
 }
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::log_state(const std::string& log_file, const std::string& step_description) const {
-    std::ofstream log(log_file, std::ios::app);
-    if (!log.is_open()) {
-        throw std::runtime_error("Failed to open log file");
-    }
 
-    log << "Step: " << step_description << "\n";
-    log << "Vertex Count: " << vertex_count_ << "\n";
-    log << "Directed: " << (directed_ ? "true" : "false") << "\n";
-
-    for (size_t i = 0; i < vertex_count_; ++i) {
-        log << "Vertex " << i << " -> ";
-        const auto& edges = adjacency_list_[i];
-        for (auto it = edges.cbegin(); it != edges.cend(); ++it) {
-            log << "(" << (*it).first_ << ", " << (*it).second_ << ") ";
-        }
-        log << "\n";
-    }
-    log << "----------------------------------------\n";
-    log.close();
-}
 
 template <typename VertexType, typename WeightType>
 constexpr size_t Graph<VertexType, WeightType>::vertex_count() const noexcept { return vertex_count_; }
 
-template <typename VertexType, typename WeightType>
-constexpr bool Graph<VertexType, WeightType>::is_directed() const noexcept { return directed_; }
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::clear() {
@@ -197,30 +179,36 @@ void Graph<VertexType, WeightType>::clear() {
     vertex_count_ = 0;
 }
 
+
 template <typename VertexType, typename WeightType>
 const DynamicArray<int>& Graph<VertexType, WeightType>::get_discovery_time() const {
     return discovery_time_;
 }
+
 
 template <typename VertexType, typename WeightType>
 const DynamicArray<int>& Graph<VertexType, WeightType>::get_finish_time() const {
     return finish_time_;
 }
 
+
 template <typename VertexType, typename WeightType>
 typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator Graph<VertexType, WeightType>::begin() noexcept {
     return adjacency_list_.begin();
 }
+
 
 template <typename VertexType, typename WeightType>
 typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::const_iterator Graph<VertexType, WeightType>::cbegin() const noexcept {
     return adjacency_list_.cbegin();
 }
 
+
 template <typename VertexType, typename WeightType>
 typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator Graph<VertexType, WeightType>::end() noexcept {
     return adjacency_list_.end();
 }
+
 
 template <typename VertexType, typename WeightType>
 typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::const_iterator Graph<VertexType, WeightType>::cend() const noexcept {

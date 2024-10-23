@@ -9,7 +9,6 @@ class MovingVertices(Scene):
 
         vertex_count = graph_data['vertex_count']
         edges = [(edge['from'], edge['to']) for edge in graph_data['edges']]
-        directed = graph_data['directed']
 
         vertices = list(range(vertex_count))
 

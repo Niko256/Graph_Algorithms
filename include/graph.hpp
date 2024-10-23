@@ -16,19 +16,17 @@ template <typename VertexType, typename WeightType>
 class Graph {
 private:
     size_t vertex_count_; // Count of vertices
-    bool directed_;
     DynamicArray<DynamicArray<Pair<VertexType, WeightType>>> adjacency_list_;
 
     DynamicArray<int> discovery_time_;
     DynamicArray<int> finish_time_;
-
 
     void resize(size_t new_size);
 
 public:
     Graph();
 
-    Graph(size_t vertex, bool dir = false);
+    Graph(size_t vertex);
 
     void add_edge(VertexType from, VertexType to, WeightType weight);
 
@@ -46,11 +44,7 @@ public:
 
     const DynamicArray<Pair<VertexType, WeightType>>& get_adjacency_list(VertexType vertex) const;
 
-    void log_state(const std::string& log_file, const std::string& step_description) const;
-
     constexpr size_t vertex_count() const noexcept;
-
-    constexpr bool is_directed() const noexcept;
 
     void clear();
 
@@ -73,20 +67,16 @@ public:
     // Graph traversal
     void depth_first_search(VertexType start);
     void breadth_first_search(VertexType start);
-    void topological_sort();
-    void dfs_with_timing(VertexType start);
 
     // Connectivity
     void find_connected_components();
     void find_bridges_and_articulation_points();
-    void kosaraju_scc();
     void find_biconnected_components();
 
     // Shortest paths
     void dijkstra(VertexType start);
     void bellman_ford(VertexType start);
     void floyd_warshall();
-    void johnson();
     void shortest_paths_unweighted(VertexType start);
 
     // Maximum flow and minimum cut
@@ -135,50 +125,11 @@ public:
     void dynamic_connectivity();
     void dynamic_shortest_paths();
 
-    // Algorithms on graphs with constraints
-    void max_flow_with_capacity_constraints(VertexType source, VertexType sink);
-    void max_flow_with_time_constraints(VertexType source, VertexType sink);
-    void max_flow_with_cost_constraints(VertexType source, VertexType sink);
-
     // Algorithms on graphs with weights
     void dijkstra_with_potentials(VertexType start);
     void bellman_ford_with_negative_cycles(VertexType start);
     void johnson_all_pairs_shortest_paths();
 
-    // Algorithms on graphs with orientation
-    void tarjan_scc();
-    void kosaraju_scc_oriented();
-    void floyd_warshall_transitive_closure();
-
-    // Algorithms on graphs with time constraints
-    void dijkstra_with_time_constraints(VertexType start);
-    void bellman_ford_with_time_constraints(VertexType start);
-    void floyd_warshall_with_time_constraints();
-
-    // Algorithms on graphs with cost constraints
-    void dijkstra_with_cost_constraints(VertexType start);
-    void bellman_ford_with_cost_constraints(VertexType start);
-    void floyd_warshall_with_cost_constraints();
-
-    // Algorithms on graphs with capacity constraints
-    void ford_fulkerson_with_capacity_constraints(VertexType source, VertexType sink);
-    void edmonds_karp_with_capacity_constraints(VertexType source, VertexType sink);
-    void dinic_with_capacity_constraints(VertexType source, VertexType sink);
-
-    // Algorithms on graphs with time and cost constraints
-    void dijkstra_with_time_and_cost_constraints(VertexType start);
-    void bellman_ford_with_time_and_cost_constraints(VertexType start);
-    void floyd_warshall_with_time_and_cost_constraints();
-
-    // Algorithms on graphs with time, cost, and capacity constraints
-    void dijkstra_with_time_cost_and_capacity_constraints(VertexType start);
-    void bellman_ford_with_time_cost_and_capacity_constraints(VertexType start);
-    void floyd_warshall_with_time_cost_and_capacity_constraints();
-
-    // Algorithms on graphs with time, cost, capacity, and orientation constraints
-    void dijkstra_with_time_cost_capacity_and_orientation_constraints(VertexType start);
-    void bellman_ford_with_time_cost_capacity_and_orientation_constraints(VertexType start);
-    void floyd_warshall_with_time_cost_capacity_and_orientation_constraints();
 
     // Traveling Salesman Problem
     void nearest_neighbor_tsp();
