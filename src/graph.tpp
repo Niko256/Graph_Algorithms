@@ -160,6 +160,9 @@ void Graph<VertexType, WeightType>::save_to_json(const std::string& filename) {
     file.close();
 }
 
+
+
+
 template <typename VertexType, typename WeightType>
 const DynamicArray<Pair<VertexType, WeightType>>& Graph<VertexType, WeightType>::get_adjacency_list(VertexType vertex) const {
     return adjacency_list_[vertex];
@@ -190,6 +193,7 @@ template <typename VertexType, typename WeightType>
 const DynamicArray<int>& Graph<VertexType, WeightType>::get_finish_time() const {
     return finish_time_;
 }
+
 
 
 template <typename VertexType, typename WeightType>

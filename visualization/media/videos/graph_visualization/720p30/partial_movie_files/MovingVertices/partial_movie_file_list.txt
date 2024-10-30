@@ -1,0 +1,5 @@
+# This file is used internally by FFMPEG.
+file 'file:/home/brusenin/projects/cpp/labs/Graphs/visualization/media/videos/graph_visualization/720p30/partial_movie_files/MovingVertices/2016333726_3097116693_223132457.mp4'
+file 'file:/home/brusenin/projects/cpp/labs/Graphs/visualization/media/videos/graph_visualization/720p30/partial_movie_files/MovingVertices/543634251_1704852926_2894599612.mp4'
+file 'file:/home/brusenin/projects/cpp/labs/Graphs/visualization/media/videos/graph_visualization/720p30/partial_movie_files/MovingVertices/543634251_408504977_379473679.mp4'
+file 'file:/home/brusenin/projects/cpp/labs/Graphs/visualization/media/videos/graph_visualization/720p30/partial_movie_files/MovingVertices/543634251_1141282389_266925642.mp4'

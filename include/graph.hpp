@@ -21,6 +21,9 @@ private:
     DynamicArray<int> discovery_time_;
     DynamicArray<int> finish_time_;
 
+    bool is_logging_started_;
+    json log_json_;
+
     void resize(size_t new_size);
 
 public:
@@ -42,6 +45,7 @@ public:
 
     void save_to_json(const std::string& filename);
 
+
     const DynamicArray<Pair<VertexType, WeightType>>& get_adjacency_list(VertexType vertex) const;
 
     constexpr size_t vertex_count() const noexcept;
@@ -51,6 +55,8 @@ public:
     const DynamicArray<int>& get_discovery_time() const;
 
     const DynamicArray<int>& get_finish_time() const;
+
+    void reset_timer() const;
 
     // Iterations
     typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator begin() noexcept;

@@ -4,8 +4,16 @@
 
 size_t dfs_timer = 0;
 
+
+template <typename VertexType, typename WeightType>
+void Graph<VertexType, WeightType>::reset_timer() const {
+    dfs_timer = 0;
+}
+
+
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
+    reset_timer();
 
     Stack<VertexType> stack;
 
@@ -14,6 +22,8 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
 
     discovery_time_ = DynamicArray<int>(adjacency_list_.size(), 0);  
     finish_time_ = DynamicArray<int>(adjacency_list_.size(), 0);    
+
+
 
     stack.push(start);
     colors[start] = 1; // Mark the starting vertex as gray 
@@ -39,6 +49,8 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
                 colors[neighbour_vertex] = 1;
                 discovery_time_[neighbour_vertex] = dfs_timer++;
                 has_unvisited_neighbours = true;
+
+
                 break; // Move to processing the new vertex 
             }
         }
@@ -48,6 +60,7 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
             stack.pop();
             colors[current] = 2;
             finish_time_[current] = dfs_timer++;
+
         }
     }
 }
