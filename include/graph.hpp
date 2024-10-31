@@ -21,7 +21,6 @@ private:
     DynamicArray<int> discovery_time_;
     DynamicArray<int> finish_time_;
 
-    bool is_logging_started_;
     json log_json_;
 
     void resize(size_t new_size);
@@ -45,6 +44,7 @@ public:
 
     void save_to_json(const std::string& filename);
 
+    void load_from_json(const std::string& filename);
 
     const DynamicArray<Pair<VertexType, WeightType>>& get_adjacency_list(VertexType vertex) const;
 

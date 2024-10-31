@@ -1,8 +1,12 @@
 #include "../../include/graph.hpp"
 #include "../../../Data_Structures/Containers/Stack.hpp"
 #include "../../../Data_Structures/Containers/Dynamic_Array.hpp"
+#include <fstream>
+#include <filesystem>
+
 
 size_t dfs_timer = 0;
+namespace fs = std::filesystem;
 
 
 template <typename VertexType, typename WeightType>
@@ -23,7 +27,20 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
     discovery_time_ = DynamicArray<int>(adjacency_list_.size(), 0);  
     finish_time_ = DynamicArray<int>(adjacency_list_.size(), 0);    
 
+    json parameters;
+    parameters["vertex_count"] = vertex_count_;
+    parameters["start_vertex"] = start;
 
+    std::string directory = "files";
+
+    std::string absolute_path = fs::current_path().string() + "/" + directory + "/dfs_parameters.json";
+    std::ofstream parameters_file(absolute_path);
+    if (parameters_file.is_open()) {
+        parameters_file << parameters.dump(4);
+        parameters_file.close();
+    } else {
+        std::cerr << "Unable to open file for writing: " << absolute_path << std::endl;
+    }
 
     stack.push(start);
     colors[start] = 1; // Mark the starting vertex as gray 
@@ -50,7 +67,6 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
                 discovery_time_[neighbour_vertex] = dfs_timer++;
                 has_unvisited_neighbours = true;
 
-
                 break; // Move to processing the new vertex 
             }
         }
@@ -60,7 +76,6 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
             stack.pop();
             colors[current] = 2;
             finish_time_[current] = dfs_timer++;
-
         }
     }
 }

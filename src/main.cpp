@@ -1,9 +1,10 @@
 #include <iostream>
-#include "../include/graph.hpp"
-#include <string>
-#include <cstdlib>
-#include <vector>
 #include <filesystem>
+#include <vector>
+#include <tuple>
+#include <string>
+#include "../include/graph.hpp"
+#include <fstream>
 
 namespace fs = std::filesystem;
 
@@ -14,7 +15,6 @@ void create_graph_parameters_file(const std::string& filename) {
 
     std::cout << "Enter vertex count: ";
     std::cin >> vertex_count;
-
 
     is_empty_vertex.resize(vertex_count, false);
     std::cout << "Enter indices of empty vertices (enter -1 to stop):" << std::endl;
@@ -56,7 +56,6 @@ void create_graph_parameters_file(const std::string& filename) {
     graph.save_to_json(filename);
 }
 
-
 int main() {
     std::string directory = "files";
     if (!fs::exists(directory)) {
@@ -71,6 +70,30 @@ int main() {
     create_graph_parameters_file(graph_parameters_file);
 
     std::cout << "Graph parameters have been saved to " << graph_parameters_file << std::endl;
+
+    Graph<int, int> graph;
+    graph.load_from_json(graph_parameters_file);
+
+    int choice;
+    while (true) {
+        std::cout << "Select an algorithm to run:" << std::endl;
+        std::cout << "1. Depth First Search" << std::endl;
+        std::cout << "0. Exit" << std::endl;
+        std::cin >> choice;
+
+        if (choice == 0) {
+            break;
+        }
+
+        if (choice == 1) {
+            int start;
+            std::cout << "Enter the starting vertex for DFS: ";
+            std::cin >> start;
+            graph.depth_first_search(start);
+        } else {
+            std::cout << "Invalid choice. Please select a valid algorithm." << std::endl;
+        }
+    }
 
     return 0;
 }

@@ -162,6 +162,31 @@ void Graph<VertexType, WeightType>::save_to_json(const std::string& filename) {
 
 
 
+template <typename VertexType, typename WeightType>
+void Graph<VertexType, WeightType>::load_from_json(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open file for loading graph parameters");
+    }
+
+    json j;
+    file >> j;
+    file.close();
+
+    vertex_count_ = j["vertex_count"];
+    adjacency_list_.resize(vertex_count_);
+    discovery_time_ = DynamicArray<int>(vertex_count_, 0);
+    finish_time_ = DynamicArray<int>(vertex_count_, 0);
+
+    for (const auto& edge : j["edges"]) {
+        VertexType from = edge["from"];
+        VertexType to = edge["to"];
+        WeightType weight = edge["weight"];
+        add_edge(from, to, weight);
+    }
+}
+
+
 
 template <typename VertexType, typename WeightType>
 const DynamicArray<Pair<VertexType, WeightType>>& Graph<VertexType, WeightType>::get_adjacency_list(VertexType vertex) const {
