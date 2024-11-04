@@ -1,8 +1,10 @@
+
+from manim import *
 import json
 import networkx as nx
-from manim import *
+import math
 
-class GraphVisualization(Scene):
+class DFSVisualization(Scene):
     def construct(self):
         with open("../build/files/graph_parameters.json", "r") as file:
             graph_data = json.load(file)
@@ -10,57 +12,98 @@ class GraphVisualization(Scene):
         with open("../build/files/dfs_parameters.json", "r") as file:
             dfs_parameters = json.load(file)
             start_vertex = dfs_parameters["start_vertex"]
-        
+
+        vertices = range(graph_data["vertex_count"])
+        radius = 2.5
+        angle = 2 * PI / len(vertices)
+
+        title = Text("Depth-First Search", color="#FF69B4").scale(1.2)  # Малиновый
+        self.play(Write(title))
+        self.play(title.animate.to_edge(UP, buff=0.5))
+
+        vertex_objects = {}
+        vertex_labels = {}
+        for i in vertices:
+            pos = [radius * math.cos(angle * i), radius * math.sin(angle * i), 0]
+            circle = Circle(radius=0.3, color=WHITE)
+            circle.set_fill("#40E0D0", opacity=0.5)  
+            circle.move_to(pos)
+            label = Text(str(i)).scale(0.8).move_to(pos)
+            vertex_objects[i] = circle
+            vertex_labels[i] = label
+
+        edges = {}
+        for edge in graph_data["edges"]:
+            start = vertex_objects[edge["from"]].get_center()
+            end = vertex_objects[edge["to"]].get_center()
+            line = Line(start, end, color="#B0C4DE")  # Светло-стальной синий
+            edges[(edge["from"], edge["to"])] = line
+
+        self.play(
+            *[Create(circle) for circle in vertex_objects.values()],
+            *[Write(label) for label in vertex_labels.values()],
+            run_time=2
+        )
+        self.play(*[Create(line) for line in edges.values()], run_time=1.5)
+
+        legend = VGroup(
+            Dot(color="#40E0D0").scale(1.5), Text("Unvisited", color="#40E0D0"),
+            Dot(color="#FF69B4").scale(1.5), Text("Current", color="#FF69B4"),
+            Dot(color="#4169E1").scale(1.5), Text("Visited", color="#4169E1")
+        ).arrange(RIGHT, buff=0.3).scale(0.8)
+        legend.to_corner(DR, buff=0.5)  
+        self.play(Create(legend))
+
         G = nx.Graph()
         for edge in graph_data["edges"]:
-            G.add_edge(edge["from"], edge["to"], weight=edge["weight"])
-        
-        k_value = 0.8 if len(G.nodes()) <= 5 else 1.5  # Увеличиваем расстояние между вершинами, если их больше пяти
-        pos = nx.spring_layout(G, scale=3, k=k_value)
-        nodes = [Dot(np.array([pos[i][0], pos[i][1], 0]), color=DARK_GRAY, radius=0.2) for i in G.nodes()]
-        node_labels = [Text(str(i), color=WHITE).next_to(nodes[i], UP) for i in G.nodes()]  # Метки вершин
-        edges = [Line(np.array([pos[edge[0]][0], pos[edge[0]][1], 0]), np.array([pos[edge[1]][0], pos[edge[1]][1], 0]), color=WHITE) for edge in G.edges()]
-        
-        algorithm_title = Text("Depth-First Search (DFS)", color=BLUE).scale(1.5).move_to(ORIGIN)
-        self.play(Write(algorithm_title), run_time=2)
-        self.wait(1)
-        self.play(FadeOut(algorithm_title), run_time=1)
-        
-        self.play(*[Create(node) for node in nodes], run_time=2)
-        self.play(*[Write(label) for label in node_labels], run_time=2)
-        self.play(*[Create(edge) for edge in edges], run_time=2)
-        
-        small_node_labels = [label.copy().scale(0.5).move_to(label.get_center()) for label in node_labels]
-        self.play(*[Transform(label, small_label) for label, small_label in zip(node_labels, small_node_labels)], run_time=1)
-        
-        edge_indices = {(edge[0], edge[1]): i for i, edge in enumerate(G.edges())}
-        edge_indices.update({(edge[1], edge[0]): i for i, edge in enumerate(G.edges())})
-        
-        dfs_edges = list(nx.dfs_edges(G, source=start_vertex))
-        visited = set()
-        step_description = Text("").to_edge(DOWN)
-        
-        for i, edge in enumerate(dfs_edges):
-            edge_index = edge_indices[(edge[0], edge[1])]
-            self.play(Indicate(edges[edge_index], color=YELLOW), run_time=1)
-            
-            if edge[0] not in visited:
-                visited.add(edge[0])
-                self.play(nodes[edge[0]].animate.set_color(GREEN), run_time=1)
-                step_description.become(Text(f"Step {i+1}: Visit node {edge[0]}", color=GREEN).to_edge(DOWN))
-                self.play(Write(step_description), run_time=1)
-            
-            if edge[1] not in visited:
-                visited.add(edge[1])
-                self.play(nodes[edge[1]].animate.set_color(GREEN), run_time=1)
-                step_description.become(Text(f"Step {i+1}: Visit node {edge[1]}", color=GREEN).to_edge(DOWN))
-                self.play(Write(step_description), run_time=1)
-        
-        for node in nodes:
-            self.play(node.animate.set_color(BLUE), run_time=1)
-        
-        self.wait(2)
+            G.add_edge(edge["from"], edge["to"])
 
-if __name__ == "__main__":
-    import manim.__main__
-    manim.__main__.main(["-pql", __file__, "GraphVisualization"])
+        dfs_path = list(nx.dfs_edges(G, source=start_vertex))
+        visited = set([start_vertex])
+        stack = [start_vertex]
+
+        status_text = Text("").scale(0.7)
+        status_text.to_corner(DL, buff=0.5)
+        self.play(vertex_objects[start_vertex].animate.set_color("#FF69B4"))
+
+        while stack:
+            current = stack[-1]
+            neighbors = [v for _, v in dfs_path if _ == current and v not in visited]
+            
+            if neighbors:
+                next_vertex = neighbors[0]
+                stack.append(next_vertex)
+                visited.add(next_vertex)
+                
+                edge_highlight = edges.get((current, next_vertex), 
+                                        edges.get((next_vertex, current)))
+                
+                self.play(
+                    vertex_objects[current].animate.set_color("#4169E1"),
+                    vertex_objects[next_vertex].animate.set_color("#FF69B4"),
+                    edge_highlight.animate.set_color("#FF69B4").set_stroke(width=4),
+                    run_time=0.8
+                )
+                
+                status = Text(f"Exploring vertex {next_vertex}", color="#4169E1").scale(0.7)
+                status.to_corner(DL, buff=0.5)
+                self.play(ReplacementTransform(status_text, status))
+                status_text = status
+            else:
+                stack.pop()
+                if stack:
+                    self.play(
+                        vertex_objects[current].animate.set_color("#4169E1"),
+                        vertex_objects[stack[-1]].animate.set_color("#FF69B4"),
+                        run_time=0.8
+                    )
+
+        final_status = Text("DFS Complete!", color="#4169E1").scale(0.7)
+        final_status.to_corner(DL, buff=0.5)
+        self.play(
+            ReplacementTransform(status_text, final_status),
+            *[vertex_objects[v].animate.set_color("#4169E1") for v in vertices],
+            *[edge.animate.set_color("#40E0D0") for edge in edges.values()]
+        )
+        
+        self.wait(3)
