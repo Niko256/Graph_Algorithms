@@ -1,4 +1,3 @@
-
 from manim import *
 import json
 import networkx as nx

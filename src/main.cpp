@@ -56,6 +56,8 @@ void create_graph_parameters_file(const std::string& filename) {
     graph.save_to_json(filename);
 }
 
+
+
 int main() {
     std::string directory = "files";
     if (!fs::exists(directory)) {
@@ -64,34 +66,67 @@ int main() {
 
     std::string graph_parameters_file = directory + "/graph_parameters.json";
 
-    std::cout << "Welcome to the Graph Parameters Input Tool!" << std::endl;
-    std::cout << "-----------------------------------------" << std::endl;
-
-    create_graph_parameters_file(graph_parameters_file);
-
-    std::cout << "Graph parameters have been saved to " << graph_parameters_file << std::endl;
-
     Graph<int, int> graph;
-    graph.load_from_json(graph_parameters_file);
+    bool running = true;
 
-    int choice;
-    while (true) {
-        std::cout << "Select an algorithm to run:" << std::endl;
-        std::cout << "1. Depth First Search" << std::endl;
-        std::cout << "0. Exit" << std::endl;
+    while (running) {
+        std::cout << "\nGraph Operations Menu:" << std::endl;
+        std::cout << "1. Create new graph" << std::endl;
+        std::cout << "2. Run BFS" << std::endl;
+        std::cout << "3. Run DFS" << std::endl;
+        std::cout << "4. Exit" << std::endl;
+        std::cout << "Choose option: ";
+
+        int choice;
         std::cin >> choice;
 
-        if (choice == 0) {
-            break;
-        }
-
-        if (choice == 1) {
-            int start;
-            std::cout << "Enter the starting vertex for DFS: ";
-            std::cin >> start;
-            graph.depth_first_search(start);
-        } else {
-            std::cout << "Invalid choice. Please select a valid algorithm." << std::endl;
+        switch (choice) {
+            case 1: {
+                create_graph_parameters_file(graph_parameters_file);
+                graph.load_from_json(graph_parameters_file);
+                std::cout << "Graph created successfully!" << std::endl;
+                break;
+            }
+            case 2: {
+                if (graph.vertex_count() == 0) {
+                    std::cout << "Please create a graph first!" << std::endl;
+                    break;
+                }
+                std::cout << "Enter start vertex (0 to " << graph.vertex_count() - 1 << "): ";
+                int start;
+                std::cin >> start;
+                if (start >= 0 && start < graph.vertex_count()) {
+                    graph.breadth_first_search(start);
+                    std::cout << "BFS completed successfully!" << std::endl;
+                } else {
+                    std::cout << "Invalid vertex!" << std::endl;
+                }
+                break;
+            }
+            case 3: {
+                if (graph.vertex_count() == 0) {
+                    std::cout << "Please create a graph first!" << std::endl;
+                    break;
+                }
+                std::cout << "Enter start vertex (0 to " << graph.vertex_count() - 1 << "): ";
+                int start;
+                std::cin >> start;
+                if (start >= 0 && start < graph.vertex_count()) {
+                    graph.depth_first_search(start);
+                    std::cout << "DFS completed successfully!" << std::endl;
+                } else {
+                    std::cout << "Invalid vertex!" << std::endl;
+                }
+                break;
+            }
+            case 4: {
+                running = false;
+                break;
+            }
+            default: {
+                std::cout << "Invalid option!" << std::endl;
+                break;
+            }
         }
     }
 

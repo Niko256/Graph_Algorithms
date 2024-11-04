@@ -1,9 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <cstddef>
-#include <fstream>
 #include <nlohmann/json_fwd.hpp>
-#include <stdexcept>
 #include "../../Data_Structures/Containers/Pair.hpp"
 #include "../../Data_Structures/Containers/Dynamic_Array.hpp"
 #include "cerrno"
@@ -20,6 +18,8 @@ private:
 
     DynamicArray<int> discovery_time_;
     DynamicArray<int> finish_time_;
+
+    static size_t traversal_timer_;
 
     json log_json_;
 
@@ -71,13 +71,13 @@ public:
 // Algorithms
 
     // Graph traversal
-    void depth_first_search(VertexType start);
-    void breadth_first_search(VertexType start);
+    void depth_first_search(VertexType start); // DONE
+    void breadth_first_search(VertexType start); // DONE
 
     // Connectivity
-    void find_connected_components();
-    void find_bridges_and_articulation_points();
-    void find_biconnected_components();
+    void find_connected_components(); // TODO
+    void find_bridges_and_articulation_points(); // TODO
+    void find_biconnected_components(); // TODO
 
     // Shortest paths
     void dijkstra(VertexType start);

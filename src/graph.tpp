@@ -12,6 +12,10 @@ using json = nlohmann::json;
 
 
 template <typename VertexType, typename WeightType>
+size_t Graph<VertexType, WeightType>::traversal_timer_ = 0;
+
+
+template <typename VertexType, typename WeightType>
 Graph<VertexType, WeightType>::Graph() : vertex_count_(0) {}
 
 template <typename VertexType, typename WeightType>
@@ -80,7 +84,7 @@ void Graph<VertexType, WeightType>::remove_edge(VertexType from, VertexType to) 
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::remove_vertex(VertexType vertex) {
-    if (vertex >= vertex_count_) throw std::out_of_range("out of range");
+    if (vertex >= vertex_count_) throw std::out_of_range("Attempt to remove non-existent vertex");
 
     for (size_t i = 0; i < vertex_count_; ++i) {
         if (i != vertex) {
@@ -185,6 +189,14 @@ void Graph<VertexType, WeightType>::load_from_json(const std::string& filename) 
         add_edge(from, to, weight);
     }
 }
+
+
+
+template <typename VertexType, typename WeightType>
+void Graph<VertexType, WeightType>::reset_timer() const {
+    traversal_timer_ = 0; 
+}
+
 
 
 

@@ -3,20 +3,18 @@
 #include "../../../Data_Structures/Containers/Dynamic_Array.hpp"
 #include <fstream>
 #include <filesystem>
+#include <stdexcept>
 
 
-size_t dfs_timer = 0;
 namespace fs = std::filesystem;
 
 
 template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::reset_timer() const {
-    dfs_timer = 0;
-}
-
-
-template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
+    if (vertex_count_ == 0) throw std::runtime_error("Cannot perform DFS on empty graph");
+
+    if (start >= vertex_count_) throw std::runtime_error("Invalid vertex index");
+
     reset_timer();
 
     Stack<VertexType> stack;
@@ -44,7 +42,15 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
 
     stack.push(start);
     colors[start] = 1; // Mark the starting vertex as gray 
-    discovery_time_[start] = dfs_timer++;
+    discovery_time_[start] = traversal_timer_++;
+
+    // for single-vertex graph 
+    if (vertex_count_ == 1) {
+        colors[start] = 2;
+        finish_time_[start] = traversal_timer_++;
+        return;
+    }
+
 
     while (!stack.empty()) {
         VertexType current = stack.top();
@@ -64,7 +70,7 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
             if (colors[neighbour_vertex] == 0) {
                 stack.push(neighbour_vertex);
                 colors[neighbour_vertex] = 1;
-                discovery_time_[neighbour_vertex] = dfs_timer++;
+                discovery_time_[neighbour_vertex] = traversal_timer_++;
                 has_unvisited_neighbours = true;
 
                 break; // Move to processing the new vertex 
@@ -75,7 +81,7 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
         if (!has_unvisited_neighbours) {
             stack.pop();
             colors[current] = 2;
-            finish_time_[current] = dfs_timer++;
+            finish_time_[current] = traversal_timer_++;
         }
     }
 }
