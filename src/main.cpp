@@ -5,14 +5,8 @@
 #include <string>
 #include "../include/graph.hpp"
 #include <fstream>
-#include <thread>
-#include <future>
-#include <cstdlib>
 
 namespace fs = std::filesystem;
-
-const std::string VISUALIZATION_DIR = "../visualization/";
-
 
 void create_graph_parameters_file(const std::string& filename) {
     int vertex_count;
@@ -57,58 +51,6 @@ void create_graph_parameters_file(const std::string& filename) {
 }
 
 
-// Function to execute Python script asynchronously
-std::future<int> execute_python_script_async(const std::string& script_path, const std::string& params) {
-    return std::async(std::launch::async, [script_path, params]() {
-        // Запуск рендеринга
-        std::string render_command = "python3 " + script_path + " " + params;
-        int result = std::system(render_command.c_str());
-        
-        if (result == 0) {
-            // Открытие видео с помощью системного видеоплеера
-            #ifdef __linux__
-                std::system("xdg-open ../media/videos/1080p60/Main.mp4");
-            #endif
-        }
-        
-        return result;
-    });
-}
-
-void render_visualization(const std::string& algorithm, const std::string& graph_file) {
-    std::string script_path = VISUALIZATION_DIR;
-    if (algorithm == "bfs") {
-        script_path += "bfs_visualization.py";
-    } else if (algorithm == "dfs") {
-        script_path += "dfs_visualization.py";
-    } else if (algorithm == "components") {
-        script_path += "find_components.py";
-    } else {
-        script_path += "graph_visualization.py";
-    }
-
-    // Проверка существования файла скрипта
-    if (!fs::exists(script_path)) {
-        std::cout << "Error: Visualization script not found at: " << script_path << std::endl;
-        return;
-    }
-
-    auto future = execute_python_script_async(script_path, graph_file);
-    
-    std::cout << "Rendering visualization... " << std::endl;
-    
-    future.wait();
-    
-    if (future.get() == 0) {
-        std::cout << "Visualization completed successfully!" << std::endl;
-    } else {
-        std::cout << "Error occurred during visualization." << std::endl;
-    }
-}
-
-
-
-
 
 int main() {
     std::string directory = "files";
@@ -124,11 +66,10 @@ int main() {
     while (running) {
         std::cout << "\nGraph Operations Menu:" << std::endl;
         std::cout << "1. Create new graph" << std::endl;
-        std::cout << "2. Run BFS with visualization" << std::endl;
-        std::cout << "3. Run DFS with visualization" << std::endl;
-        std::cout << "4. Find Connected Components with visualization" << std::endl;
-        std::cout << "5. Show graph visualization" << std::endl;
-        std::cout << "6. Exit" << std::endl;
+        std::cout << "2. Run BFS" << std::endl;
+        std::cout << "3. Run DFS" << std::endl;
+        std::cout << "4. Find Connected Components" << std::endl;
+        std::cout << "5. Exit" << std::endl;
         std::cout << "Choose option: ";
 
         int choice;
@@ -139,8 +80,6 @@ int main() {
                 create_graph_parameters_file(graph_parameters_file);
                 graph.load_from_json(graph_parameters_file);
                 std::cout << "Graph created successfully!" << std::endl;
-                // Show initial graph visualization
-                render_visualization("graph", graph_parameters_file);
                 break;
             }
             case 2: {
@@ -153,7 +92,7 @@ int main() {
                 std::cin >> start;
                 if (start >= 0 && start < graph.vertex_count()) {
                     graph.breadth_first_search(start);
-                    render_visualization("bfs", graph_parameters_file);
+                    std::cout << "BFS completed successfully!" << std::endl;
                 } else {
                     std::cout << "Invalid vertex!" << std::endl;
                 }
@@ -169,7 +108,7 @@ int main() {
                 std::cin >> start;
                 if (start >= 0 && start < graph.vertex_count()) {
                     graph.depth_first_search(start);
-                    render_visualization("dfs", graph_parameters_file);
+                    std::cout << "DFS completed successfully!" << std::endl;
                 } else {
                     std::cout << "Invalid vertex!" << std::endl;
                 }
@@ -177,22 +116,13 @@ int main() {
             }
             case 4: {
                 try {
-                    auto components = graph.find_connected_components();
-                    render_visualization("components", graph_parameters_file);
-                } catch (const std::runtime_error& e) {
-                    std::cout << "Error: " << e.what() << std::endl;
-                }
-                break;
+                auto components = graph.find_connected_components();
+            } catch (const std::runtime_error& e) {
+                std::cout << "Error: " << e.what() << std::endl;
             }
+            break;
+        }
             case 5: {
-                if (graph.vertex_count() == 0) {
-                    std::cout << "Please create a graph first!" << std::endl;
-                    break;
-                }
-                render_visualization("graph", graph_parameters_file);
-                break;
-            }
-            case 6: {
                 running = false;
                 break;
             }
