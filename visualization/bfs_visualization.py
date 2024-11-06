@@ -16,7 +16,7 @@ class BFSVisualization(Scene):
         radius = 2.5
         angle = 2 * PI / len(vertices)
 
-        title = Text("Breadth-First Search", color="#FF69B4").scale(1.2)  # Малиновый
+        title = Text("Breadth-First Search", color="#FF69B4").scale(1.2)
         self.play(Write(title))
         self.play(title.animate.to_edge(UP, buff=0.5))
 
@@ -35,7 +35,7 @@ class BFSVisualization(Scene):
         for edge in graph_data["edges"]:
             start = vertex_objects[edge["from"]].get_center()
             end = vertex_objects[edge["to"]].get_center()
-            line = Line(start, end, color="#B0C4DE")  # Светло-стальной синий
+            line = Line(start, end, color="#B0C4DE")
             edges[(edge["from"], edge["to"])] = line
 
         self.play(
