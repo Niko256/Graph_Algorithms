@@ -28,17 +28,8 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
     json parameters;
     parameters["vertex_count"] = vertex_count_;
     parameters["start_vertex"] = start;
+    save_json_to_file("bfs_parameters.json", parameters);
 
-    std::string directory = "files";
-
-    std::string absolute_path = fs::current_path().string() + "/" + directory + "/dfs_parameters.json";
-    std::ofstream parameters_file(absolute_path);
-    if (parameters_file.is_open()) {
-        parameters_file << parameters.dump(4);
-        parameters_file.close();
-    } else {
-        std::cerr << "Unable to open file for writing: " << absolute_path << std::endl;
-    }
 
     stack.push(start);
     colors[start] = 1; // Mark the starting vertex as gray 

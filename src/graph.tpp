@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include "cerrno"
 #include <nlohmann/json.hpp>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 
 using json = nlohmann::json;
@@ -18,11 +20,16 @@ size_t Graph<VertexType, WeightType>::traversal_timer_ = 0;
 template <typename VertexType, typename WeightType>
 Graph<VertexType, WeightType>::Graph() : vertex_count_(0) {}
 
+
 template <typename VertexType, typename WeightType>
-Graph<VertexType, WeightType>::Graph(size_t vertex) : vertex_count_(vertex) {
-    adjacency_list_.resize(vertex);
-    discovery_time_ = DynamicArray<int>(vertex, 0);
-    finish_time_ = DynamicArray<int>(vertex, 0);
+Graph<VertexType, WeightType>::Graph(size_t vertex_count) : vertex_count_(vertex_count) {
+    adjacency_list_.resize(vertex_count);
+    for (size_t i = 0; i < vertex_count; ++i) {
+        adjacency_list_[i].reserve(vertex_count);
+    }
+
+    discovery_time_ = DynamicArray<int>(vertex_count_, 0);
+    finish_time_ = DynamicArray<int>(vertex_count_, 0);
 }
 
 
@@ -49,14 +56,17 @@ void Graph<VertexType, WeightType>::add_edge(VertexType from, VertexType to, Wei
 }
 
 
+
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::add_vertex() {
     if (vertex_count_ >= adjacency_list_.size()) {
-        adjacency_list_.resize(2 * vertex_count_);
-        discovery_time_.resize(2 * vertex_count_);
-        finish_time_.resize(2 * vertex_count_);
+        size_t new_size = (vertex_count_ == 0) ? 1 : 2 * vertex_count_;
+        adjacency_list_.resize(new_size);
     }
+    adjacency_list_[vertex_count_] = DynamicArray<Pair<VertexType, WeightType>>();
     ++vertex_count_;
+    discovery_time_.resize(vertex_count_);
+    finish_time_.resize(vertex_count_);
 }
 
 
@@ -190,6 +200,22 @@ void Graph<VertexType, WeightType>::load_from_json(const std::string& filename) 
     }
 }
 
+
+template <typename VertexType, typename WeightType>
+void Graph<VertexType, WeightType>::save_json_to_file(const std::string& filename, const json& data) {
+    std::string directory = "files";
+    if (!fs::exists(directory)) {
+        fs::create_directory(directory);
+    }
+    
+    std::string absolute_path = fs::current_path().string() + "/" + directory + "/" + filename;
+    std::ofstream file(absolute_path);
+    if (!file.is_open()) {
+        throw std::runtime_error("Unable to open file for writing: " + absolute_path);
+    }
+    file << data.dump(4);
+    file.close();
+}
 
 
 template <typename VertexType, typename WeightType>

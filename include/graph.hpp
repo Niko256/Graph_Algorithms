@@ -28,7 +28,7 @@ private:
 public:
     Graph();
 
-    Graph(size_t vertex);
+    Graph(size_t vertex_count);
 
     void add_edge(VertexType from, VertexType to, WeightType weight);
 
@@ -45,6 +45,8 @@ public:
     void save_to_json(const std::string& filename);
 
     void load_from_json(const std::string& filename);
+
+    void save_json_to_file(const std::string& filename, const json& data);
 
     const DynamicArray<Pair<VertexType, WeightType>>& get_adjacency_list(VertexType vertex) const;
 
@@ -75,7 +77,7 @@ public:
     void breadth_first_search(VertexType start); // DONE
 
     // Connectivity
-    void find_connected_components(); // TODO
+    DynamicArray<DynamicArray<VertexType>> find_connected_components(); // DONE 
     void find_bridges_and_articulation_points(); // TODO
     void find_biconnected_components(); // TODO
 
@@ -150,12 +152,6 @@ public:
     void nsga_ii();
     void spea2();
 
-    // Implementation of the "Lattice" ADT
-    void lattice_operations();
-    void lattice_path_search();
-    void lattice_with_obstacles();
-    void lattice_with_weights();
-
     // Path search with the highest capacity
     void ford_fulkerson_max_capacity_path(VertexType source, VertexType sink);
     void dinic_max_capacity_path(VertexType source, VertexType sink);
@@ -176,3 +172,4 @@ public:
 #include "../src/graph.tpp"
 #include "../src/algorithms/dfs.tpp"
 #include "../src/algorithms/bfs.tpp"
+#include "../src/algorithms/connected_components.tpp"

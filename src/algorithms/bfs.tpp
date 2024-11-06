@@ -4,8 +4,9 @@
 #include <filesystem>
 #include <queue>
 #include <stdexcept>
+#include <nlohmann/json.hpp>
 
-
+using json = nlohmann::json;
 namespace fs = std::filesystem;
 
 
@@ -28,16 +29,7 @@ void Graph<VertexType, WeightType>::breadth_first_search(VertexType start) {
     json parameters;
     parameters["vertex_count"] = vertex_count_;
     parameters["start_vertex"] = start;
-
-    std::string directory = "files";
-    std::string absolute_path = fs::current_path().string() + "/" + directory + "/bfs_parameters.json";
-    std::ofstream parameters_file(absolute_path);
-    if (parameters_file.is_open()) {
-        parameters_file << parameters.dump(4);
-        parameters_file.close();
-    } else {
-        std::cerr << "Unable to open file for writing: " << absolute_path << std::endl;
-    }
+    save_json_to_file("bfs_parameters.json", parameters);
 
     queue.push(start); 
     colors[start] = 1; // Mark the starting vertex as gray
