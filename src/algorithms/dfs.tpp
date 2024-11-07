@@ -11,6 +11,7 @@ namespace fs = std::filesystem;
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
+
     if (vertex_count_ == 0) throw std::runtime_error("Cannot perform DFS on empty graph");
 
     if (start >= vertex_count_) throw std::runtime_error("Invalid vertex index");
@@ -28,7 +29,7 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
     json parameters;
     parameters["vertex_count"] = vertex_count_;
     parameters["start_vertex"] = start;
-    save_json_to_file("bfs_parameters.json", parameters);
+    save_json_to_file("dfs_parameters.json", parameters);
 
 
     stack.push(start);

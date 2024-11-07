@@ -3,8 +3,9 @@
 #include <vector>
 #include <tuple>
 #include <string>
-#include "../include/graph.hpp"
 #include <fstream>
+#include <cstdlib>
+#include "../include/graph.hpp"
 
 namespace fs = std::filesystem;
 
@@ -50,7 +51,15 @@ void create_graph_parameters_file(const std::string& filename) {
     graph.save_to_json(filename);
 }
 
-
+void run_visualization(const std::string& script_name) {
+    std::string command = "../visualization/run_manim.sh " + script_name;
+    int result = std::system(command.c_str());
+    if (result != 0) {
+        std::cerr << "Error running visualization script: " << script_name << std::endl;
+    } else {
+        std::cout << "Visualization completed successfully!" << std::endl;
+    }
+}
 
 int main() {
     std::string directory = "files";
@@ -69,7 +78,10 @@ int main() {
         std::cout << "2. Run BFS" << std::endl;
         std::cout << "3. Run DFS" << std::endl;
         std::cout << "4. Find Connected Components" << std::endl;
-        std::cout << "5. Exit" << std::endl;
+        std::cout << "5. Visualize BFS" << std::endl;
+        std::cout << "6. Visualize DFS" << std::endl;
+        std::cout << "7. Visualize Connected Components" << std::endl;
+        std::cout << "8. Exit" << std::endl;
         std::cout << "Choose option: ";
 
         int choice;
@@ -116,13 +128,25 @@ int main() {
             }
             case 4: {
                 try {
-                auto components = graph.find_connected_components();
-            } catch (const std::runtime_error& e) {
-                std::cout << "Error: " << e.what() << std::endl;
+                    auto components = graph.find_connected_components();
+                } catch (const std::runtime_error& e) {
+                    std::cout << "Error: " << e.what() << std::endl;
+                }
+                break;
             }
-            break;
-        }
             case 5: {
+                run_visualization("bfs_visualization.py");
+                break;
+            }
+            case 6: {
+                run_visualization("dfs_visualization.py");
+                break;
+            }
+            case 7: {
+                run_visualization("find_components.py");
+                break;
+            }
+            case 8: {
                 running = false;
                 break;
             }
