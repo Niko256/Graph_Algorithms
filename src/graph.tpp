@@ -7,8 +7,8 @@
 #include "cerrno"
 #include <nlohmann/json.hpp>
 #include <filesystem>
-namespace fs = std::filesystem;
 
+namespace fs = std::filesystem;
 
 using json = nlohmann::json;
 
@@ -34,6 +34,25 @@ Graph<VertexType, WeightType>::Graph(size_t vertex_count) : vertex_count_(vertex
 
 
 template <typename VertexType, typename WeightType>
+void Graph<VertexType, WeightType>::initialize_graph(size_t n) {
+    clear();
+    vertex_count_ = n;
+    
+    adjacency_list_.resize(n);
+
+    for(size_t i = 0; i < n; ++i) {
+        adjacency_list_[i] = DynamicArray<Pair<VertexType, WeightType>>();
+        adjacency_list_[i].reserve(n); 
+    }
+    
+    // Initialize discovery and finish times
+    discovery_time_ = DynamicArray<int>(n);
+    finish_time_ = DynamicArray<int>(n);
+    
+}
+
+
+template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::resize(size_t new_size) {
     if (new_size >= adjacency_list_.size()) {
         adjacency_list_.resize(new_size);
@@ -45,9 +64,16 @@ void Graph<VertexType, WeightType>::resize(size_t new_size) {
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::add_edge(VertexType from, VertexType to, WeightType weight) {
+
+    if (from == to) throw std::invalid_argument("Self loops are not allowed");
+
+    if (weight < 0) throw std::invalid_argument("Negative weights are not supported");
+
     if (from >= vertex_count_ || to >= vertex_count_) {
         resize(std::max(from, to) + 1);
     }
+
+    if (has_edge(from, to)) throw std::runtime_error("Edge already exists");
 
     adjacency_list_[from].emplace_back(std::move(Pair(to, weight)));
 

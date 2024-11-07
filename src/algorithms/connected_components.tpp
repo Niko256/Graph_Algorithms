@@ -23,24 +23,22 @@ DynamicArray<DynamicArray<VertexType>> Graph<VertexType, WeightType>::find_conne
     for (VertexType vrt = 0; vrt < vertex_count_; ++vrt) {
         if (!visited[vrt]) {
             DynamicArray<VertexType> current_component;
-            current_component.push_back(vrt); 
+            Stack<VertexType> stack;
+            
+            stack.push(vrt);
             visited[vrt] = true;
+            current_component.push_back(vrt);
 
-            if (!adjacency_list_[vrt].empty()) {
-                Stack<VertexType> stack;
-                stack.push(vrt);
+            while(!stack.empty()) {
+                VertexType current = stack.top();
+                stack.pop();
 
-                while(!stack.empty()) {
-                    VertexType current = stack.top();
-                    stack.pop();
-
-                    for (const auto& neighbour: adjacency_list_[current]) {
-                        VertexType neighbour_vertex = neighbour.first_;
-                        if (!visited[neighbour_vertex]) {
-                            stack.push(neighbour_vertex);
-                            visited[neighbour_vertex] = true;
-                            current_component.push_back(neighbour_vertex);
-                        }
+                for (const auto& neighbour: adjacency_list_[current]) {
+                    VertexType neighbour_vertex = neighbour.first_;
+                    if (!visited[neighbour_vertex]) {
+                        stack.push(neighbour_vertex);
+                        visited[neighbour_vertex] = true;
+                        current_component.push_back(neighbour_vertex);
                     }
                 }
             }

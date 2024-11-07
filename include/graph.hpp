@@ -24,11 +24,13 @@ private:
     json log_json_;
 
     void resize(size_t new_size);
+    void initialize_graph(size_t n);
 
 public:
     Graph();
 
     Graph(size_t vertex_count);
+
 
     void add_edge(VertexType from, VertexType to, WeightType weight);
 
@@ -162,14 +164,22 @@ public:
     void knapsack_branch_and_bound();
     void knapsack_genetic_algorithm();
 
-    // Graph generalization with given topology and size
-    void generate_random_graph_with_topology();
-    void generate_regular_graph();
-    void generate_graph_with_degree_distribution();
-    void generate_graph_with_diameter();
+
+    // Graph Generators
+    void generate_complete_graph(size_t n);
+    void generate_cycle_graph(size_t n);
+    void generate_path_graph(size_t n);
+    void generate_star_graph(size_t n);
+    void generate_grid_graph(size_t m, size_t n);
+    void generate_hypercube_graph(size_t dimension);
+    void generate_tree(size_t n);
+    void generate_connected_graph(size_t n, double edge_probability);
+    void generate_bipartite_graph(size_t m, size_t n, double edge_probability);
+    void generate_complete_bipartite_graph(size_t m, size_t n);
 };
 
 #include "../src/graph.tpp"
 #include "../src/algorithms/dfs.tpp"
 #include "../src/algorithms/bfs.tpp"
 #include "../src/algorithms/connected_components.tpp"
+#include "../src/algorithms/generators.tpp"
