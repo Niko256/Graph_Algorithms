@@ -1,10 +1,12 @@
 #include "../../include/graph.hpp"
 #include "../../../Data_Structures/Containers/Stack.hpp"
+#include "../../../Data_Structures/Containers/Dynamic_Array.hpp"
 #include <fstream>
 #include <filesystem>
 #include <stdexcept>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <unordered_map>
 
 using json = nlohmann::json;
 
@@ -18,35 +20,44 @@ DynamicArray<DynamicArray<VertexType>> Graph<VertexType, WeightType>::find_conne
     }
 
     DynamicArray<DynamicArray<VertexType>> components;
-    DynamicArray<bool> visited(vertex_count_, false);
+    
+    // Reset all vertices to unvisited (color 0)
+    for (auto& [vertex_id, vertex] : vertices_) {
+        vertex.set_color(0);
+    }
 
-    for (VertexType vrt = 0; vrt < vertex_count_; ++vrt) {
-        if (!visited[vrt]) {
+    // Process each unvisited vertex
+    for (auto& [start_vertex, vertex] : vertices_) {
+        if (vertex.get_color() == 0) { // Unvisited vertex
+            // Start new component
             DynamicArray<VertexType> current_component;
             Stack<VertexType> stack;
             
-            stack.push(vrt);
-            visited[vrt] = true;
-            current_component.push_back(vrt);
+            // Initialize DFS from current vertex
+            stack.push(start_vertex);
+            vertices_[start_vertex].set_color(1); // Mark as visited
+            current_component.push_back(start_vertex);
 
-            while(!stack.empty()) {
+            while (!stack.empty()) {
                 VertexType current = stack.top();
                 stack.pop();
 
-                for (const auto& neighbour: adjacency_list_[current]) {
-                    VertexType neighbour_vertex = neighbour.first_;
-                    if (!visited[neighbour_vertex]) {
-                        stack.push(neighbour_vertex);
-                        visited[neighbour_vertex] = true;
-                        current_component.push_back(neighbour_vertex);
+                // Check all neighbors in adjacency list
+                for (const auto& [neighbor, edge] : adjacency_list_[current]) {
+                    if (vertices_[neighbor].get_color() == 0) { // Unvisited neighbor
+                        stack.push(neighbor);
+                        vertices_[neighbor].set_color(1); // Mark as visited
+                        current_component.push_back(neighbor);
                     }
                 }
             }
+            
+            // Add completed component to results
             components.push_back(std::move(current_component));
         }
     }
 
-
+    // Create JSON output
     json components_data;
     components_data["components_count"] = components.size();
     components_data["components"] = json::array();

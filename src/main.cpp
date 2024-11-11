@@ -1,10 +1,7 @@
 #include <iostream>
 #include <filesystem>
 #include <memory>
-#include <vector>
-#include <tuple>
 #include <string>
-#include <fstream>
 #include <cstdlib>
 #include "../include/graph.hpp"
 
@@ -267,7 +264,7 @@ private:
         try {
             switch(choice) {
                 case 1: find_components(); break;
-                case 2: run_visualization("components_visualization.py"); break;
+                case 2: run_visualization("find_components.py"); break;
                 default: std::cout << "\nInvalid option!" << std::endl;
             }
         } catch (const std::exception& e) {

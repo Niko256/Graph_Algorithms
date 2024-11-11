@@ -47,7 +47,7 @@ class ConnectedComponentsVisualization(Scene):
         status_text = Text("").scale(0.7)
         status_text.to_corner(DL, buff=0.5)
 
-        colors = [RED_A, GREEN_A, YELLOW_A, PURPLE_A, GOLD_A, TEAL_A]  # Цвета для компонент
+        colors = [RED_A, GREEN_A, YELLOW_A, PURPLE_A, GOLD_A, TEAL_A]  
         
         for i, component in enumerate(components_data["components"]):
             component_color = colors[i % len(colors)]

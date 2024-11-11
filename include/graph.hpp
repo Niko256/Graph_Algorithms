@@ -1,11 +1,14 @@
 #pragma once
-#include <algorithm>
 #include <cstddef>
 #include <nlohmann/json_fwd.hpp>
-#include "../../Data_Structures/Containers/Pair.hpp"
 #include "../../Data_Structures/Containers/Dynamic_Array.hpp"
-#include "cerrno"
+#include <cerrno>
+#include <filesystem>
 #include <nlohmann/json.hpp>
+#include <unordered_map>
+#include "edge.hpp"
+#include "vertex.hpp"
+
 
 using json = nlohmann::json;
 
@@ -13,36 +16,42 @@ using json = nlohmann::json;
 template <typename VertexType, typename WeightType>
 class Graph {
 private:
-    size_t vertex_count_; // Count of vertices
-    DynamicArray<DynamicArray<Pair<VertexType, WeightType>>> adjacency_list_;
-
-    DynamicArray<int> discovery_time_;
-    DynamicArray<int> finish_time_;
-
-    static size_t traversal_timer_;
+    std::unordered_map<VertexType, std::unordered_map<VertexType, Edge<VertexType, WeightType>>> adjacency_list_;
+    std::unordered_map<VertexType, Vertex<VertexType, WeightType>> vertices_;
+    
+    size_t vertex_count_;
 
     json log_json_;
-
+    
     void resize(size_t new_size);
     void initialize_graph(size_t n);
 
 public:
-    Graph();
+    Graph(const Graph& other);
 
-    Graph(size_t vertex_count);
+    explicit Graph(size_t vertex_count);
+    
+    Graph& operator=(const Graph& other);
+    
+    Graph(Graph&& other) noexcept;
+
+    Graph() : vertex_count_(0) {};
+
+    Graph& operator=(Graph&& other) noexcept;
+
+    ~Graph() = default;
 
 
     void add_edge(VertexType from, VertexType to, WeightType weight);
 
-    void add_vertex();
+    void add_vertex(VertexType id);
 
     void remove_edge(VertexType from, VertexType to);
 
     void remove_vertex(VertexType vertex);
 
-    bool has_edge(VertexType from, VertexType to) const;
 
-    json to_json();
+    json to_json() const;
 
     void save_to_json(const std::string& filename);
 
@@ -50,26 +59,40 @@ public:
 
     void save_json_to_file(const std::string& filename, const json& data);
 
-    const DynamicArray<Pair<VertexType, WeightType>>& get_adjacency_list(VertexType vertex) const;
 
-    constexpr size_t vertex_count() const noexcept;
+    const std::unordered_map<VertexType, std::unordered_map<VertexType, Edge<VertexType, WeightType>>>& get_adjacency_list() const;
+   
+    bool operator==(const Graph& other) const;
+    bool operator!=(const Graph& other) const;
 
+    size_t get_degree(const VertexType& vertex) const;
+
+    bool is_connected(const VertexType& from, const VertexType& to) const;
+
+    void set_edge_weight(const VertexType& from, const VertexType& to, const WeightType& weight);
+
+    const Vertex<VertexType, WeightType>& get_vertex(const VertexType& id) const;
+    
+    const Edge<VertexType, WeightType>& get_edge(const VertexType& from, const VertexType& to) const;
+    
+    const std::unordered_map<VertexType, Vertex<VertexType, WeightType>>& get_vertices() const;
+
+    bool has_vertex(const VertexType& vertex) const;
+
+    bool has_edge(const VertexType& from, const VertexType& to) const;
+
+    size_t vertex_count() const noexcept;
+
+    size_t edge_count() const noexcept;
+
+    bool is_empty() const noexcept;
+    
     void clear();
 
-    const DynamicArray<int>& get_discovery_time() const;
-
-    const DynamicArray<int>& get_finish_time() const;
-
-    void reset_timer() const;
-
-    // Iterations
-    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator begin() noexcept;
-
-    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::const_iterator cbegin() const noexcept;
-
-    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::iterator end() noexcept;
-
-    typename DynamicArray<DynamicArray<Pair<VertexType, WeightType>>>::const_iterator cend() const noexcept;
+    auto begin() noexcept { return adjacency_list_.begin(); }
+    auto end() noexcept { return adjacency_list_.end(); }
+    auto cbegin() const noexcept { return adjacency_list_.cbegin(); }
+    auto cend() const noexcept { return adjacency_list_.cend(); }
 
 
 // Algorithms
@@ -178,8 +201,9 @@ public:
     void generate_complete_bipartite_graph(size_t m, size_t n);
 };
 
+
 #include "../src/graph.tpp"
 #include "../src/algorithms/dfs.tpp"
 #include "../src/algorithms/bfs.tpp"
-#include "../src/algorithms/connected_components.tpp"
-#include "../src/algorithms/generators.tpp"
+#include "../src/algorithms/components.tpp"
+#include "../src/generators.tpp"

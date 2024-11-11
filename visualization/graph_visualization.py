@@ -45,7 +45,7 @@ class MovingVertices(Scene):
                 rate_func=smooth,
                 run_time=0.4  
             )
-            self.play(v.animate.scale(1/1.2).set_color(BLUE_A), run_time=0.2)  # Уменьшено время анимации
+            self.play(v.animate.scale(1/1.2).set_color(BLUE_A), run_time=0.2)  
 
         
         edge_mobjects = []
@@ -72,7 +72,7 @@ class MovingVertices(Scene):
             self.play(
                 *[Create(edge) for edge in group],
                 *[Flash(edge.get_start(), color=BLUE_A, flash_radius=0.3) for edge in group],
-                run_time=0.3  # Уменьшено время анимации
+                run_time=0.3  
             )
 
         self.play(

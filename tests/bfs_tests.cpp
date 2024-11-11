@@ -1,80 +1,101 @@
 #include <gtest/gtest.h>
 #include "../include/graph.hpp"
-#include <vector>
 
 class BFSTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        if (!std::filesystem::exists("files")) {
-            std::filesystem::create_directory("files");
-        }
-    }
+    Graph<int, int> graph;
 
-    void TearDown() override {
-        if (std::filesystem::exists("files/bfs_parameters.json")) {
-            std::filesystem::remove("files/bfs_parameters.json");
-        }
-    }
+    void SetUp() override {}
 };
 
-
-TEST_F(BFSTest, SimplePath) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 1);
-    graph.add_edge(1, 2, 1);
-    
-    graph.breadth_first_search(0);
-    
-    auto discovery = graph.get_discovery_time();
-    auto finish = graph.get_finish_time();
-    
-    ASSERT_LT(discovery[0], discovery[1]);
-    ASSERT_LT(discovery[1], discovery[2]);
+TEST_F(BFSTest, EmptyGraph) {
+    EXPECT_THROW(graph.breadth_first_search(1), std::runtime_error);
 }
 
-TEST_F(BFSTest, CyclicGraph) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 1);
+TEST_F(BFSTest, NonexistentStartVertex) {
+    graph.add_vertex(1);
+    EXPECT_THROW(graph.breadth_first_search(2), std::runtime_error);
+}
+
+TEST_F(BFSTest, SingleVertex) {
+    graph.add_vertex(1);
+    EXPECT_NO_THROW(graph.breadth_first_search(1));
+    EXPECT_EQ(graph.get_vertex(1).get_color(), 2); 
+    EXPECT_EQ(graph.get_vertex(1).get_discovery_time(), 0);
+    EXPECT_EQ(graph.get_vertex(1).get_finish_time(), 1);
+}
+
+TEST_F(BFSTest, SimplePath) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_vertex(3);
     graph.add_edge(1, 2, 1);
-    graph.add_edge(2, 0, 1);
-    
-    graph.breadth_first_search(0);
-    
-    auto discovery = graph.get_discovery_time();
-    
-    for(size_t i = 0; i < 3; ++i) {
-        ASSERT_GE(discovery[i], 0);
-    }
+    graph.add_edge(2, 3, 1);
+
+    graph.breadth_first_search(1);
+
+    EXPECT_LT(graph.get_vertex(1).get_discovery_time(), 
+              graph.get_vertex(2).get_discovery_time());
+    EXPECT_LT(graph.get_vertex(2).get_discovery_time(), 
+              graph.get_vertex(3).get_discovery_time());
+}
+
+TEST_F(BFSTest, CycleGraph) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_vertex(3);
+    graph.add_edge(1, 2, 1);
+    graph.add_edge(2, 3, 1);
+    graph.add_edge(3, 1, 1);
+
+    graph.breadth_first_search(1);
+
+    EXPECT_EQ(graph.get_vertex(1).get_color(), 2);
+    EXPECT_EQ(graph.get_vertex(2).get_color(), 2);
+    EXPECT_EQ(graph.get_vertex(3).get_color(), 2);
 }
 
 TEST_F(BFSTest, DisconnectedGraph) {
-    Graph<int, int> graph(4);
-    graph.add_edge(0, 1, 1);
-    graph.add_edge(2, 3, 1);
-    
-    graph.breadth_first_search(0);
-    
-    auto discovery = graph.get_discovery_time();
-    
-    ASSERT_GT(discovery[1], 0);
-    ASSERT_EQ(discovery[2], 0);
-    ASSERT_EQ(discovery[3], 0);
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_vertex(3);
+    graph.add_edge(1, 2, 1);
+
+    graph.breadth_first_search(1);
+
+    EXPECT_EQ(graph.get_vertex(1).get_color(), 2);
+    EXPECT_EQ(graph.get_vertex(2).get_color(), 2);
+    EXPECT_EQ(graph.get_vertex(3).get_color(), 0);
 }
 
-TEST_F(BFSTest, JSONOutput) {
-    Graph<int, int> graph(2);
-    graph.add_edge(0, 1, 1);
+TEST_F(BFSTest, CompleteGraph) {
+    for(int i = 1; i <= 4; ++i) {
+        graph.add_vertex(i);
+    }
+    for(int i = 1; i <= 4; ++i) {
+        for(int j = i + 1; j <= 4; ++j) {
+            graph.add_edge(i, j, 1);
+        }
+    }
+
+    graph.breadth_first_search(1);
+
+    for(int i = 1; i <= 4; ++i) {
+        EXPECT_EQ(graph.get_vertex(i).get_color(), 2);
+        EXPECT_GE(graph.get_vertex(i).get_discovery_time(), 0);
+        EXPECT_GE(graph.get_vertex(i).get_finish_time(), 0);
+    }
+}
+
+TEST_F(BFSTest, VertexReset) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_edge(1, 2, 1);
+
+    graph.breadth_first_search(1);
     
-    graph.breadth_first_search(0);
+    graph.breadth_first_search(2);
     
-    ASSERT_TRUE(std::filesystem::exists("files/bfs_parameters.json"));
-    
-    std::ifstream file("files/bfs_parameters.json");
-    ASSERT_TRUE(file.is_open());
-    
-    json parameters;
-    file >> parameters;
-    
-    ASSERT_EQ(parameters["vertex_count"], 2);
-    ASSERT_EQ(parameters["start_vertex"], 0);
+    EXPECT_GE(graph.get_vertex(1).get_discovery_time(), 0);
+    EXPECT_GE(graph.get_vertex(2).get_discovery_time(), 0);
 }

@@ -1,144 +1,183 @@
-#include "../include/graph.hpp"
 #include <gtest/gtest.h>
+#include "../include/graph.hpp"
 
-TEST(GraphTest, DefaultConstructor) {
+class GraphTest : public ::testing::Test {
+protected:
     Graph<int, int> graph;
-    EXPECT_EQ(graph.vertex_count(), 0);
+    
+    void SetUp() override {}
+};
+
+TEST_F(GraphTest, DefaultConstructor) {
+    Graph<int, int> g;
+    EXPECT_TRUE(g.is_empty());
+    EXPECT_EQ(g.vertex_count(), 0);
+    EXPECT_EQ(g.edge_count(), 0);
 }
 
-TEST(GraphTest, ParameterizedConstructor) {
-    Graph<int, int> graph(5);
-    EXPECT_EQ(graph.vertex_count(), 5);
+TEST_F(GraphTest, SizeConstructor) {
+    Graph<int, int> g(5);
+    EXPECT_FALSE(g.is_empty());
+    EXPECT_EQ(g.vertex_count(), 5);
+    EXPECT_EQ(g.edge_count(), 0);
+    
+    for(int i = 0; i < 5; ++i) {
+        EXPECT_TRUE(g.has_vertex(i));
+    }
 }
 
-TEST(GraphTest, AddEdge) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
+TEST_F(GraphTest, AddVertex) {
+    EXPECT_NO_THROW(graph.add_vertex(1));
+    EXPECT_TRUE(graph.has_vertex(1));
+    EXPECT_EQ(graph.vertex_count(), 1);
+    
+    EXPECT_THROW(graph.add_vertex(1), std::invalid_argument);
+}
 
-    EXPECT_TRUE(graph.has_edge(0, 1));
-    EXPECT_TRUE(graph.has_edge(1, 0)); 
+TEST_F(GraphTest, RemoveVertex) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_edge(1, 2, 10);
+    
+    EXPECT_NO_THROW(graph.remove_vertex(1));
+    EXPECT_FALSE(graph.has_vertex(1));
+    EXPECT_FALSE(graph.has_edge(1, 2));
+    EXPECT_EQ(graph.vertex_count(), 1);
+    
+    EXPECT_THROW(graph.remove_vertex(3), std::invalid_argument);
+}
+
+TEST_F(GraphTest, AddEdge) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    
+    EXPECT_NO_THROW(graph.add_edge(1, 2, 10));
     EXPECT_TRUE(graph.has_edge(1, 2));
     EXPECT_TRUE(graph.has_edge(2, 1)); 
+    
+    EXPECT_THROW(graph.add_edge(1, 2, 20), std::invalid_argument);
+    
+    EXPECT_THROW(graph.add_edge(1, 3, 10), std::invalid_argument);
 }
 
-
-TEST(GraphTest, AddVertex) {
-    Graph<int, int> graph;
-    graph.add_vertex();
-    graph.add_vertex();
-
-    EXPECT_EQ(graph.vertex_count(), 2);
-}
-
-TEST(GraphTest, RemoveEdge) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
-
-    graph.remove_edge(0, 1);
-    EXPECT_FALSE(graph.has_edge(0, 1));
-    EXPECT_FALSE(graph.has_edge(1, 0)); 
-}
-
-
-TEST(GraphTest, RemoveVertex) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
-
-    graph.remove_vertex(1);
-    EXPECT_EQ(graph.vertex_count(), 2);
-    /*EXPECT_FALSE(graph.has_edge(0, 1));*/
-    /*EXPECT_FALSE(graph.has_edge(1, 2));*/
-}
-
-
-TEST(GraphTest, HasEdge) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-
-    EXPECT_TRUE(graph.has_edge(0, 1));
-    EXPECT_TRUE(graph.has_edge(1, 0)); 
-    EXPECT_FALSE(graph.has_edge(0, 2));
-}
-
-
-TEST(GraphTest, ToJson) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
-
+TEST_F(GraphTest, JsonSerialization) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_edge(1, 2, 10);
+    
     json j = graph.to_json();
-    EXPECT_EQ(j["vertex_count"], 3);
-    EXPECT_EQ(j["edges"].size(), 4); 
+    EXPECT_EQ(j["vertices"].size(), 2);
+    EXPECT_EQ(j["edges"].size(), 1);
+    
+    EXPECT_EQ(j["edges"][0]["from"], 1);
+    EXPECT_EQ(j["edges"][0]["to"], 2);
+    EXPECT_EQ(j["edges"][0]["weight"], 10);
 }
 
-TEST(GraphTest, SaveToJson) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
-
-    graph.save_to_json("test_graph.json");
-
-    std::ifstream file("test_graph.json");
-    json j;
-    file >> j;
-    file.close();
-
-    EXPECT_EQ(j["vertex_count"], 3);
-    EXPECT_EQ(j["edges"].size(), 4); 
-}
-
-TEST(GraphTest, GetAdjacencyList) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
-
-    const auto& adj_list = graph.get_adjacency_list(0);
-    EXPECT_EQ(adj_list.size(), 1);
-    EXPECT_EQ(adj_list[0].first_, 1);
-    EXPECT_EQ(adj_list[0].second_, 10);
+TEST_F(GraphTest, ComparisonOperators) {
+    Graph<int, int> g1, g2;
+    
+    EXPECT_EQ(g1, g2);
+    
+    g1.add_vertex(1);
+    EXPECT_NE(g1, g2);
+    
+    g2.add_vertex(1);
+    EXPECT_EQ(g1, g2);
 }
 
 
-TEST(GraphTest, Clear) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
 
-    graph.clear();
-    EXPECT_EQ(graph.vertex_count(), 0);
+TEST_F(GraphTest, MoveConstructor) {
+    Graph<int, int> g1;
+    g1.add_vertex(1);
+    g1.add_vertex(2);
+    g1.add_edge(1, 2, 10);
+    
+    Graph<int, int> g2(std::move(g1));
+    EXPECT_TRUE(g1.is_empty()); 
+    EXPECT_TRUE(g2.has_vertex(1));
+    EXPECT_TRUE(g2.has_vertex(2));
+    EXPECT_TRUE(g2.has_edge(1, 2));
 }
 
-TEST(GraphTest, GetDiscoveryAndFinishTime) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
-
-    const auto& discovery_time = graph.get_discovery_time();
-    const auto& finish_time = graph.get_finish_time();
-
-    EXPECT_EQ(discovery_time.size(), 3);
-    EXPECT_EQ(finish_time.size(), 3);
+TEST_F(GraphTest, EdgeOperations) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_edge(1, 2, 10);
+    
+    EXPECT_EQ(graph.get_edge(1, 2).get_weight(), 10);
+    EXPECT_NO_THROW(graph.set_edge_weight(1, 2, 20));
+    EXPECT_EQ(graph.get_edge(1, 2).get_weight(), 20);
+    
+    EXPECT_NO_THROW(graph.remove_edge(1, 2));
+    EXPECT_FALSE(graph.has_edge(1, 2));
+    EXPECT_EQ(graph.edge_count(), 0);
 }
 
-TEST(GraphTest, Iterators) {
-    Graph<int, int> graph(3);
-    graph.add_edge(0, 1, 10);
-    graph.add_edge(1, 2, 20);
-
-    auto it = graph.begin();
-    EXPECT_EQ(it->size(), 1);
-    ++it;
-    EXPECT_EQ(it->size(), 2);
-    ++it;
-    EXPECT_EQ(it->size(), 1);
-    ++it;
-    EXPECT_EQ(it, graph.end());
+TEST_F(GraphTest, VertexDegree) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_vertex(3);
+    
+    EXPECT_EQ(graph.get_degree(1), 0);
+    
+    graph.add_edge(1, 2, 10);
+    EXPECT_EQ(graph.get_degree(1), 1);
+    
+    graph.add_edge(1, 3, 20);
+    EXPECT_EQ(graph.get_degree(1), 2);
+    
+    graph.remove_edge(1, 2);
+    EXPECT_EQ(graph.get_degree(1), 1);
 }
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+TEST_F(GraphTest, EdgeCases) {
+    // Пустой граф
+    EXPECT_THROW(graph.remove_vertex(1), std::invalid_argument);
+    EXPECT_THROW(graph.get_vertex(1), std::invalid_argument);
+    EXPECT_THROW(graph.get_edge(1, 2), std::invalid_argument);
+    
+    graph.add_vertex(1);
+    EXPECT_EQ(graph.vertex_count(), 1);
+    EXPECT_EQ(graph.edge_count(), 0);
+    EXPECT_THROW(graph.add_edge(1, 1, 10), std::invalid_argument); 
+}
+
+TEST_F(GraphTest, LargeGraph) {
+    const size_t size = 1000;
+    for(size_t i = 0; i < size; ++i) {
+        EXPECT_NO_THROW(graph.add_vertex(i));
+    }
+    EXPECT_EQ(graph.vertex_count(), size);
+    
+    for(size_t i = 0; i < size-1; ++i) {
+        EXPECT_NO_THROW(graph.add_edge(i, i+1, i));
+    }
+    EXPECT_EQ(graph.edge_count(), size-1);
+}
+
+TEST_F(GraphTest, JsonOperations) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_edge(1, 2, 10);
+    
+    EXPECT_NO_THROW(graph.save_to_json("test_graph.json"));
+    
+    Graph<int, int> loaded_graph;
+    EXPECT_NO_THROW(loaded_graph.load_from_json("test_graph.json"));
+    EXPECT_EQ(graph, loaded_graph);
+}
+
+TEST_F(GraphTest, Connectivity) {
+    graph.add_vertex(1);
+    graph.add_vertex(2);
+    graph.add_vertex(3);
+    
+    EXPECT_FALSE(graph.is_connected(1, 2));
+    
+    graph.add_edge(1, 2, 10);
+    EXPECT_TRUE(graph.is_connected(1, 2));
+    EXPECT_TRUE(graph.is_connected(2, 1));
+    EXPECT_FALSE(graph.is_connected(1, 3));
 }

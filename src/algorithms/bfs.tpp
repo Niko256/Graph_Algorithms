@@ -1,63 +1,57 @@
 #include "../../include/graph.hpp"
+#include "../../../Data_Structures/Containers/Queue.hpp"
 #include "../../../Data_Structures/Containers/Dynamic_Array.hpp"
 #include <fstream>
 #include <filesystem>
-#include <queue>
 #include <stdexcept>
-#include <nlohmann/json.hpp>
-
-using json = nlohmann::json;
-namespace fs = std::filesystem;
-
 
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::breadth_first_search(VertexType start) {
-    if (adjacency_list_.size() == 0) throw std::runtime_error("Cannot perform BFS on empty graph");
+    // Check if graph is empty
+    if (vertices_.empty()) {
+        throw std::runtime_error("Cannot perform BFS on empty graph");
+    }
 
-    if (start >= vertex_count_ || start < 0) throw std::runtime_error("Invalid start vertex");
+    // Check if start vertex exists
+    if (!has_vertex(start)) {
+        throw std::runtime_error("Start vertex does not exist in graph");
+    }
 
-    reset_timer();
-    
-    std::queue<VertexType> queue;
+    // Reset all vertices
+    for (auto& [id, vertex] : vertices_) {
+        vertex.set_color(0);
+        vertex.set_discovery_time(-1);
+        vertex.set_finish_time(-1);
+    }
 
-    // 0 -> white, 1 -> gray, 2 -> black
-    DynamicArray<int> colors(adjacency_list_.size(), 0);
-
-    discovery_time_ = DynamicArray<int>(adjacency_list_.size(), 0);  
-    finish_time_ = DynamicArray<int>(adjacency_list_.size(), 0);    
-
+    // Create parameters for logging
     json parameters;
-    parameters["vertex_count"] = vertex_count_;
+    parameters["vertex_count"] = vertices_.size();
     parameters["start_vertex"] = start;
     save_json_to_file("bfs_parameters.json", parameters);
 
-    queue.push(start); 
-    colors[start] = 1; // Mark the starting vertex as gray
-    discovery_time_[start] = traversal_timer_++;
-
-    // for single-vertex graph 
-    if (vertex_count_ == 1) {
-        colors[start] = 2;
-        finish_time_[start] = traversal_timer_++;
-        return;
-    }
-
+    Queue<VertexType> queue;
+    size_t timer = 0;
+    
+    queue.enqueue(start);
+    vertices_[start].set_color(1); // Gray
+    vertices_[start].set_discovery_time(timer++);
 
     while (!queue.empty()) {
         VertexType current = queue.front();
-        queue.pop();
+        queue.dequeue();
 
-        for (auto& neighbour : adjacency_list_[current]) {
-            VertexType neighbour_vertex = neighbour.first_;
-
-            if (colors[neighbour_vertex] == 0) {
-                queue.push(neighbour_vertex);
-                colors[neighbour_vertex] = 1;
-                discovery_time_[neighbour_vertex] = traversal_timer_++;
+        // Check all neighbors of current vertex
+        for (const auto& [neighbor, edge] : adjacency_list_[current]) {
+            if (vertices_[neighbor].get_color() == 0) { // White vertex
+                queue.enqueue(neighbor);
+                vertices_[neighbor].set_color(1); // Gray
+                vertices_[neighbor].set_discovery_time(timer++);
             }
         }
 
-        colors[current] = 2;
-        finish_time_[current] = traversal_timer_++;
+        // Finish current vertex
+        vertices_[current].set_color(2); // Black
+        vertices_[current].set_finish_time(timer++);
     }
 }

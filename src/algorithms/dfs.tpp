@@ -6,74 +6,66 @@
 #include <stdexcept>
 
 
-namespace fs = std::filesystem;
-
-
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
+    // Check if graph is empty
+    if (vertices_.empty()) {
+        throw std::runtime_error("Cannot perform DFS on empty graph");
+    }
 
-    if (vertex_count_ == 0) throw std::runtime_error("Cannot perform DFS on empty graph");
+    // Check if start vertex exists
+    if (!has_vertex(start)) {
+        throw std::runtime_error("Start vertex does not exist in graph");
+    }
 
-    if (start >= vertex_count_) throw std::runtime_error("Invalid vertex index");
+    // Reset all vertices
+    for (auto& [id, vertex] : vertices_) {
+        vertex.set_color(0);
+        vertex.set_discovery_time(-1);
+        vertex.set_finish_time(-1);
+    }
 
-    reset_timer();
-
-    Stack<VertexType> stack;
-
-    // 0 -> white, 1 -> gray, 2 -> black
-    DynamicArray<int> colors(adjacency_list_.size(), 0);
-
-    discovery_time_ = DynamicArray<int>(adjacency_list_.size(), 0);  
-    finish_time_ = DynamicArray<int>(adjacency_list_.size(), 0);    
-
+    // Create parameters for logging
     json parameters;
-    parameters["vertex_count"] = vertex_count_;
+    parameters["vertex_count"] = vertices_.size();
     parameters["start_vertex"] = start;
     save_json_to_file("dfs_parameters.json", parameters);
 
+    Stack<VertexType> stack;
+    size_t timer = 0;
 
+    // Start DFS from the start vertex
     stack.push(start);
-    colors[start] = 1; // Mark the starting vertex as gray 
-    discovery_time_[start] = traversal_timer_++;
+    vertices_[start].set_color(1); // Gray
+    vertices_[start].set_discovery_time(timer++);
 
-    // for single-vertex graph 
-    if (vertex_count_ == 1) {
-        colors[start] = 2;
-        finish_time_[start] = traversal_timer_++;
+    // Handle single-vertex case
+    if (vertices_.size() == 1) {
+        vertices_[start].set_color(2); // Black
+        vertices_[start].set_finish_time(timer++);
         return;
     }
 
-
     while (!stack.empty()) {
         VertexType current = stack.top();
+        bool has_unvisited_neighbors = false;
 
-        if (colors[current] == 2) { 
-            // If the vertex is already black, just pop it from the stack
-            stack.pop();
-            continue;
-        }
-
-        // A flag to check if there are any unvisited neighbors.
-        bool has_unvisited_neighbours = false;
-
-        for (auto& neighbour: adjacency_list_[current]) {
-            VertexType neighbour_vertex = neighbour.first_;
-
-            if (colors[neighbour_vertex] == 0) {
-                stack.push(neighbour_vertex);
-                colors[neighbour_vertex] = 1;
-                discovery_time_[neighbour_vertex] = traversal_timer_++;
-                has_unvisited_neighbours = true;
-
-                break; // Move to processing the new vertex 
+        // Check all neighbors of current vertex
+        for (const auto& [neighbor, edge] : adjacency_list_[current]) {
+            if (vertices_[neighbor].get_color() == 0) { // White vertex
+                stack.push(neighbor);
+                vertices_[neighbor].set_color(1); // Gray
+                vertices_[neighbor].set_discovery_time(timer++);
+                has_unvisited_neighbors = true;
+                break;
             }
         }
 
-        // If all neighbors are already visited
-        if (!has_unvisited_neighbours) {
+        // If all neighbors are visited, finish current vertex
+        if (!has_unvisited_neighbors) {
             stack.pop();
-            colors[current] = 2;
-            finish_time_[current] = traversal_timer_++;
+            vertices_[current].set_color(2); // Black
+            vertices_[current].set_finish_time(timer++);
         }
     }
 }
