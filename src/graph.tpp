@@ -128,6 +128,17 @@ void Graph<VertexType, WeightType>::remove_vertex(VertexType vertex) {
 
 
 template <typename VertexType, typename WeightType>
+void Graph<VertexType, WeightType>::reset_parameters() {
+    // Reset all vertices
+    for (auto& [id, vertex] : vertices_) {
+        vertex.set_color(0);
+        vertex.set_discovery_time(-1);
+        vertex.set_finish_time(-1);
+    }
+}
+
+
+template <typename VertexType, typename WeightType>
 json Graph<VertexType, WeightType>::to_json() const {
     json j;
     j["vertices"] = json::array();
@@ -204,6 +215,12 @@ void Graph<VertexType, WeightType>::save_json_to_file(const std::string& filenam
     }
     file << data.dump(4);
     file.close();
+}
+
+
+template <typename VertexType, typename WeightType>
+const json Graph<VertexType, WeightType>::get_json() const {
+    return this->log_json_;
 }
 
 

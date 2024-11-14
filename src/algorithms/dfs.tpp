@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <stdexcept>
 
-
 template <typename VertexType, typename WeightType>
 void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
     // Check if graph is empty
@@ -18,12 +17,7 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
         throw std::runtime_error("Start vertex does not exist in graph");
     }
 
-    // Reset all vertices
-    for (auto& [id, vertex] : vertices_) {
-        vertex.set_color(0);
-        vertex.set_discovery_time(-1);
-        vertex.set_finish_time(-1);
-    }
+    reset_parameters();
 
     // Create parameters for logging
     json parameters;

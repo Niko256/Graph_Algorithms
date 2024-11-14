@@ -50,6 +50,7 @@ public:
 
     void remove_vertex(VertexType vertex);
 
+    void reset_parameters();
 
     json to_json() const;
 
@@ -76,6 +77,8 @@ public:
     const Edge<VertexType, WeightType>& get_edge(const VertexType& from, const VertexType& to) const;
     
     const std::unordered_map<VertexType, Vertex<VertexType, WeightType>>& get_vertices() const;
+
+    const json get_json() const;
 
     bool has_vertex(const VertexType& vertex) const;
 
@@ -207,3 +210,4 @@ public:
 #include "../src/algorithms/bfs.tpp"
 #include "../src/algorithms/components.tpp"
 #include "../src/generators.tpp"
+#include "../src/algorithms/bridges_and_articulation_points.tpp"

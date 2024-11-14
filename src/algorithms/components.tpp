@@ -21,10 +21,7 @@ DynamicArray<DynamicArray<VertexType>> Graph<VertexType, WeightType>::find_conne
 
     DynamicArray<DynamicArray<VertexType>> components;
     
-    // Reset all vertices to unvisited (color 0)
-    for (auto& [vertex_id, vertex] : vertices_) {
-        vertex.set_color(0);
-    }
+    reset_parameters();
 
     // Process each unvisited vertex
     for (auto& [start_vertex, vertex] : vertices_) {
