@@ -13,12 +13,12 @@
 using json = nlohmann::json;
 
 
-template <typename VertexType, typename WeightType>
+template <typename VertexId, typename Resource, typename WeightType>
 class Graph {
 private:
-    std::unordered_map<VertexType, std::unordered_map<VertexType, Edge<VertexType, WeightType>>> adjacency_list_;
-    std::unordered_map<VertexType, Vertex<VertexType, WeightType>> vertices_;
-    
+    std::unordered_map<VertexId, std::unordered_map<VertexId, WeightType>> adjacency_list_;
+    std::unordered_map<VertexId, Vertex<VertexId, Resource>> vertex_pool_;
+
     size_t vertex_count_;
 
     json log_json_;
@@ -42,13 +42,13 @@ public:
     ~Graph() = default;
 
 
-    void add_edge(VertexType from, VertexType to, WeightType weight);
+    void add_edge(VertexId from, VertexId to, WeightType weight);
 
-    void add_vertex(VertexType id);
+    void add_vertex(VertexId id);
 
-    void remove_edge(VertexType from, VertexType to);
+    void remove_edge(VertexId from, VertexId to);
 
-    void remove_vertex(VertexType vertex);
+    void remove_vertex(VertexId vertex);
 
     void reset_parameters();
 
@@ -60,29 +60,28 @@ public:
 
     void save_json_to_file(const std::string& filename, const json& data);
 
-
-    const std::unordered_map<VertexType, std::unordered_map<VertexType, Edge<VertexType, WeightType>>>& get_adjacency_list() const;
+    const std::unordered_map<VertexId, std::unordered_map<VertexId, WeightType>>& get_adjacency_list() const;
    
     bool operator==(const Graph& other) const;
     bool operator!=(const Graph& other) const;
 
-    size_t get_degree(const VertexType& vertex) const;
+    size_t get_degree(const VertexId& vertex) const;
 
-    bool is_connected(const VertexType& from, const VertexType& to) const;
+    bool is_connected(const VertexId& from, const VertexId& to) const;
 
-    void set_edge_weight(const VertexType& from, const VertexType& to, const WeightType& weight);
+    void set_edge_weight(const VertexId& from, const VertexId& to, const WeightType& weight);
 
-    const Vertex<VertexType, WeightType>& get_vertex(const VertexType& id) const;
+    const Vertex<VertexId, Resource>& get_vertex(const VertexId& id) const;
     
-    const Edge<VertexType, WeightType>& get_edge(const VertexType& from, const VertexType& to) const;
+    const WeightType& get_edge_weight(const VertexId& from, const VertexId& to) const;
     
-    const std::unordered_map<VertexType, Vertex<VertexType, WeightType>>& get_vertices() const;
+    const std::unordered_map<VertexId, Vertex<VertexId, Resource>>& get_vertices() const;
 
     const json get_json() const;
 
-    bool has_vertex(const VertexType& vertex) const;
+    bool has_vertex(const VertexId& vertex) const;
 
-    bool has_edge(const VertexType& from, const VertexType& to) const;
+    bool has_edge(const VertexId& from, const VertexId& to) const;
 
     size_t vertex_count() const noexcept;
 
@@ -101,25 +100,25 @@ public:
 // Algorithms
 
     // Graph traversal
-    void depth_first_search(VertexType start); // DONE
-    void breadth_first_search(VertexType start); // DONE
+    void depth_first_search(VertexId start); // DONE
+    void breadth_first_search(VertexId start); // DONE
 
     // Connectivity
-    DynamicArray<DynamicArray<VertexType>> find_connected_components(); // DONE 
+    DynamicArray<DynamicArray<VertexId>> find_connected_components(); // DONE 
     void find_bridges_and_articulation_points(); // TODO
     void find_biconnected_components(); // TODO
 
     // Shortest paths
-    void dijkstra(VertexType start);
-    void bellman_ford(VertexType start);
+    void dijkstra(VertexId start);
+    void bellman_ford(VertexId start);
     void floyd_warshall();
-    void shortest_paths_unweighted(VertexType start);
+    void shortest_paths_unweighted(VertexId start);
 
     // Maximum flow and minimum cut
-    void ford_fulkerson(VertexType source, VertexType sink);
-    void edmonds_karp(VertexType source, VertexType sink);
-    void dinic(VertexType source, VertexType sink);
-    void goldberg_tarjan(VertexType source, VertexType sink);
+    void ford_fulkerson(VertexId source, VertexId sink);
+    void edmonds_karp(VertexId source, VertexId sink);
+    void dinic(VertexId source, VertexId sink);
+    void goldberg_tarjan(VertexId source, VertexId sink);
     void karger_stein();
 
     // Matchings
@@ -131,7 +130,7 @@ public:
     void kruskal();
     void prim();
     void boruvka();
-    void lca(VertexType u, VertexType v);
+    void lca(VertexId u, VertexId v);
     void heavy_light_decomposition();
 
     // Planarity
@@ -140,9 +139,9 @@ public:
     void fruchterman_reingold();
 
     // Network and flows
-    void max_flow_in_network(VertexType source, VertexType sink);
-    void min_cut_in_network(VertexType source, VertexType sink);
-    void min_cost_flow(VertexType source, VertexType sink);
+    void max_flow_in_network(VertexId source, VertexId sink);
+    void min_cut_in_network(VertexId source, VertexId sink);
+    void min_cost_flow(VertexId source, VertexId sink);
     void assignment_problem();
 
     // Heuristic algorithms
@@ -162,8 +161,8 @@ public:
     void dynamic_shortest_paths();
 
     // Algorithms on graphs with weights
-    void dijkstra_with_potentials(VertexType start);
-    void bellman_ford_with_negative_cycles(VertexType start);
+    void dijkstra_with_potentials(VertexId start);
+    void bellman_ford_with_negative_cycles(VertexId start);
     void johnson_all_pairs_shortest_paths();
 
 
@@ -181,8 +180,8 @@ public:
     void spea2();
 
     // Path search with the highest capacity
-    void ford_fulkerson_max_capacity_path(VertexType source, VertexType sink);
-    void dinic_max_capacity_path(VertexType source, VertexType sink);
+    void ford_fulkerson_max_capacity_path(VertexId source, VertexId sink);
+    void dinic_max_capacity_path(VertexId source, VertexId sink);
 
     // Knapsack problem
     void knapsack_greedy();

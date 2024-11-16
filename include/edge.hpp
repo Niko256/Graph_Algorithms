@@ -1,17 +1,17 @@
 #pragma once
 
-template <typename T, typename W>
+template <typename VertexId, typename W>
 class Edge {
 private:
-    T from_;
-    T to_;
+    VertexId from_;
+    VertexId to_;
     W weight_;
     bool is_bridge_ = false;
 
 public:
     Edge() : from_(), to_(), weight_() {}
 
-    Edge(T f, T t, W w);
+    Edge(VertexId f, VertexId t, W w);
 
     Edge(const Edge& other_edge);
 
@@ -27,9 +27,9 @@ public:
     bool operator==(const Edge& other_edge) const;
     bool operator!=(const Edge& other_edge) const;
 
-    T get_from() const;
-    T get_to() const;
-    W get_weight() const;
+    const VertexId& get_from() const;
+    const VertexId& get_to() const;
+    const W& get_weight() const;
 
     void set_weight(W new_weight);
 

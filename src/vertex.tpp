@@ -1,19 +1,19 @@
 #include "../include/vertex.hpp"
 
-template <typename T, typename Resource>
-Vertex<T, Resource>::Vertex(T id, Resource data) : id_(id), data_(new Resource(data)) {}
+template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>::Vertex(VertexId id, Resource data) : id_(id), data_(new Resource(data)) {}
 
-template <typename T, typename Resource>
-Vertex<T, Resource>::Vertex(T id) : id_(id), data_(nullptr) {}
+template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>::Vertex(VertexId id) : id_(id), data_(nullptr) {}
 
-template <typename T, typename Resource>
-Vertex<T, Resource>::Vertex(T id, const Resource& data) : id_(id), data_(new Resource(data)) {}
+template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>::Vertex(VertexId id, const Resource& data) : id_(id), data_(new Resource(data)) {}
 
-template <typename T, typename Resource>
-Vertex<T, Resource>::Vertex(T id, Resource&& data) : id_(id), data_(new Resource(std::move(data))) {}
+template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>::Vertex(VertexId id, Resource&& data) : id_(id), data_(new Resource(std::move(data))) {}
 
-template <typename T, typename Resource>
-Vertex<T, Resource>::Vertex(const Vertex& other) : 
+template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>::Vertex(const Vertex& other) : 
     id_(other.id_),
     data_(*(other.get_data()) ? new Resource(*other.data_) : nullptr),
     visited_(other.visited_),
@@ -22,8 +22,8 @@ Vertex<T, Resource>::Vertex(const Vertex& other) :
     finish_time_(other.finish_time_) {}
 
 
-template <typename T, typename Resource>
-Vertex<T, Resource>& Vertex<T, Resource>::operator=(Vertex&& other) {
+template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>& Vertex<VertexId, Resource>::operator=(Vertex&& other) {
     if (this != &other) {
         id_ = std::move(other.id_);
         data_ = std::move(other.data_);
@@ -40,8 +40,8 @@ Vertex<T, Resource>& Vertex<T, Resource>::operator=(Vertex&& other) {
     return *this;
 }
 
-template <typename T, typename Resource>
-Vertex<T, Resource>::Vertex(Vertex&& other) noexcept : id_(std::move(other.id_)), data_(std::move(other.data_)),
+template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>::Vertex(Vertex&& other) noexcept : id_(std::move(other.id_)), data_(std::move(other.data_)),
         visited_(other.visited_), color_(other.color_),
         discovery_time_(other.discovery_time_), finish_time_(other.finish_time_) {
 
@@ -51,11 +51,11 @@ Vertex<T, Resource>::Vertex(Vertex&& other) noexcept : id_(std::move(other.id_))
     other.finish_time_ = -1;
 }
 
-template <typename T, typename Resource>
-Vertex<T, Resource>::~Vertex() = default;
+template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>::~Vertex() = default;
 
-template <typename T, typename Resource>
-bool Vertex<T, Resource>::operator==(const Vertex& other) const {
+template <typename VertexId, typename Resource>
+bool Vertex<VertexId, Resource>::operator==(const Vertex& other) const {
     return id_ == other.id_ && 
            ((data_ == nullptr && other.data_ == nullptr) || 
             (data_ != nullptr && other.data_ != nullptr && *data_ == *other.data_)) && 
@@ -65,8 +65,8 @@ bool Vertex<T, Resource>::operator==(const Vertex& other) const {
            finish_time_ == other.finish_time_;
 }
 
-template <typename T, typename Resource>
-bool Vertex<T, Resource>::operator!=(const Vertex& other) const {
+template <typename VertexId, typename Resource>
+bool Vertex<VertexId, Resource>::operator!=(const Vertex& other) const {
     return id_ != other.id_ && 
            *data_ != *other.data_ && 
            visited_ != other.visited_ && 
@@ -75,42 +75,42 @@ bool Vertex<T, Resource>::operator!=(const Vertex& other) const {
            finish_time_ != other.finish_time_;
 }
 
-template <typename T, typename Resource>
-T Vertex<T, Resource>::get_id() const {
+template <typename VertexId, typename Resource>
+VertexId Vertex<VertexId, Resource>::get_id() const {
     return id_;
 }
 
-template <typename T, typename Resource>
-const UniquePtr<Resource>& Vertex<T, Resource>::get_data() const {
+template <typename VertexId, typename Resource>
+const UniquePtr<Resource>& Vertex<VertexId, Resource>::get_data() const {
     return data_;
 }
 
-template <typename T, typename Resource>
-size_t Vertex<T, Resource>::get_color() const {
+template <typename VertexId, typename Resource>
+size_t Vertex<VertexId, Resource>::get_color() const {
     return color_;
 }
 
-template <typename T, typename Resource>
-int Vertex<T, Resource>::get_discovery_time() const {
+template <typename VertexId, typename Resource>
+int Vertex<VertexId, Resource>::get_discovery_time() const {
     return discovery_time_;
 }
 
-template <typename T, typename Resource>
-int Vertex<T, Resource>::get_finish_time() const {
+template <typename VertexId, typename Resource>
+int Vertex<VertexId, Resource>::get_finish_time() const {
     return finish_time_;
 }
 
-template <typename T, typename Resource>
-void Vertex<T, Resource>::set_color(size_t other_color) {
+template <typename VertexId, typename Resource>
+void Vertex<VertexId, Resource>::set_color(size_t other_color) {
     color_ = other_color;
 }
 
-template <typename T, typename Resource>
-void Vertex<T, Resource>::set_discovery_time(int d_time) {
+template <typename VertexId, typename Resource>
+void Vertex<VertexId, Resource>::set_discovery_time(int d_time) {
     discovery_time_ = d_time;
 }
 
-template <typename T, typename Resource>
-void Vertex<T, Resource>::set_finish_time(int s_time) {
+template <typename VertexId, typename Resource>
+void Vertex<VertexId, Resource>::set_finish_time(int s_time) {
     finish_time_ = s_time;
 }

@@ -2,10 +2,10 @@
 #include "../../Data_Structures/SmartPtrs/include/UniquePtr.hpp"
 
 
-template <typename T, typename Resource>
+template <typename VertexId, typename Resource>
 class Vertex {
 private:
-    T id_;
+    VertexId id_;
     UniquePtr<Resource> data_;
 
     bool visited_ = false;
@@ -16,13 +16,13 @@ private:
 public:
     Vertex() : id_(), data_(nullptr) {}
 
-    Vertex(T id);
+    Vertex(VertexId id);
 
-    Vertex(T id, Resource data);
+    Vertex(VertexId id, Resource data);
 
-    Vertex(T id, const Resource& data);
+    Vertex(VertexId id, const Resource& data);
 
-    Vertex(T id, Resource&& data);
+    Vertex(VertexId id, Resource&& data);
 
     Vertex& operator=(Vertex&& other);
 
@@ -35,7 +35,7 @@ public:
     bool operator==(const Vertex& other) const;
     bool operator!=(const Vertex& other) const;
 
-    T get_id() const;
+    const VertexId& get_id() const;
 
     const UniquePtr<Resource>& get_data() const;
     size_t get_color() const;
