@@ -76,7 +76,7 @@ bool Vertex<VertexId, Resource>::operator!=(const Vertex& other) const {
 }
 
 template <typename VertexId, typename Resource>
-VertexId Vertex<VertexId, Resource>::get_id() const {
+const VertexId& Vertex<VertexId, Resource>::get_id() const {
     return id_;
 }
 

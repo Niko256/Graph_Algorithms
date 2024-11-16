@@ -7,59 +7,59 @@
 namespace fs = std::filesystem;
 
 
-template <typename VertexType, typename WeightType>
-Graph<VertexType, WeightType>::Graph(const Graph& other) : 
+template <typename VertexId, typename Resource, typename WeightType>
+Graph<VertexId, WeightType>::Graph(const Graph& other) : 
             adjacency_list_(other.adjacency_list_),
-            vertices_(other.vertices_),
+            vertex_pool_(other.vertex_pool_),
             vertex_count_(other.vertex_count_) {}
 
 
-template <typename VertexType, typename WeightType>
-Graph<VertexType, WeightType>& Graph<VertexType, WeightType>::operator=(const Graph& other) {
+template <typename VertexId, typename Resource, typename WeightType>
+Graph<VertexId, WeightType>& Graph<VertexId, WeightType>::operator=(const Graph& other) {
     if (this != &other) {
         adjacency_list_ = other.adjacency_list_;
-        vertices_ = other.vertices_;
+        vertex_pool_= other.vertex_pool_;
         vertex_count_ = other.vertex_count_;
     }
     return *this;
 }
 
-template <typename VertexType, typename WeightType>
-Graph<VertexType, WeightType>::Graph(size_t vertex_count) : vertex_count_(vertex_count) {
+template <typename VertexId, typename Resource, typename WeightType>
+Graph<VertexId, WeightType>::Graph(size_t vertex_count) : vertex_count_(vertex_count) {
     initialize_graph(vertex_count);
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::initialize_graph(size_t n) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::initialize_graph(size_t n) {
     clear();
     vertex_count_ = n;
     
     // Initialize adjacency list with size n
-    adjacency_list_ = std::unordered_map<VertexType, std::unordered_map<VertexType, Edge<VertexType, WeightType>>>();
+    adjacency_list_ = std::unordered_map<VertexId, std::unordered_map<VertexId, WeightType>>();
     
     // Initialize vertices map
-    vertices_ = std::unordered_map<VertexType, Vertex<VertexType, WeightType>>();
+    vertex_pool_ = std::unordered_map<VertexId, Vertex<VertexId, Resource>>();
     
     // Add vertices
     for(size_t i = 0; i < n; ++i) {
-        vertices_[i] = Vertex<VertexType, WeightType>(i);
-        adjacency_list_[i] = std::unordered_map<VertexType, Edge<VertexType, WeightType>>();
+        vertex_pool_[i] = Vertex<VertexId, Resource>(i);
+        adjacency_list_[i] = std::unordered_map<VertexId, WeightType>();
     }
 }
 
 
-template <typename VertexType, typename WeightType>
-Graph<VertexType, WeightType>::Graph(Graph&& other) noexcept : 
+template <typename VertexId, typename Resource, typename WeightType>
+Graph<VertexId, WeightType>::Graph(Graph&& other) noexcept : 
         adjacency_list_(std::move(other.adjacency_list_)), 
-        vertices_(std::move(other.vertices_)), vertex_count_(other.vertex_count_) {
+        vertex_pool_(std::move(other.vertex_pool_)), vertex_count_(other.vertex_count_) {
 
     other.vertex_count_ = 0;
 }
 
 
-template <typename VertexType, typename WeightType>
-Graph<VertexType, WeightType>& Graph<VertexType, WeightType>::operator=(Graph&& other) noexcept {
+template <typename VertexId, typename Resource, typename WeightType>
+Graph<VertexId, WeightType>& Graph<VertexId, WeightType>::operator=(Graph&& other) noexcept {
     if (this != &other) {
         adjacency_list_ = std::move(other.adjacency_list_);
         vertices_ = std::move(other.vertices_);
@@ -71,8 +71,8 @@ Graph<VertexType, WeightType>& Graph<VertexType, WeightType>::operator=(Graph&& 
 
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::add_edge(VertexType from, VertexType to, WeightType weight) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::add_edge(VertexId from, VertexId to, WeightType weight) {
     if (!has_vertex(from) || !has_vertex(to)) {
         throw std::invalid_argument("Vertices do not exist");
     }
@@ -83,24 +83,24 @@ void Graph<VertexType, WeightType>::add_edge(VertexType from, VertexType to, Wei
         throw std::invalid_argument("Self-loops are not allowed");
     }
     
-    adjacency_list_[from].emplace(to, Edge<VertexType, WeightType>(from, to, weight));
-    adjacency_list_[to].emplace(from, Edge<VertexType, WeightType>(to, from, weight));
+    adjacency_list_[from].emplace(to, Edge<VertexId, WeightType>(from, to, weight));
+    adjacency_list_[to].emplace(from, Edge<VertexId, WeightType>(to, from, weight));
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::add_vertex(VertexType id) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::add_vertex(VertexId id) {
     if (has_vertex(id)) {
         throw std::invalid_argument("Vertex already exists");
     }
-    vertices_[id] = Vertex<VertexType, WeightType>(id);
-    adjacency_list_[id] = std::unordered_map<VertexType, Edge<VertexType, WeightType>>();
+    vertices_[id] = Vertex<VertexId, WeightType>(id);
+    adjacency_list_[id] = std::unordered_map<VertexId, Edge<VertexId, WeightType>>();
     ++vertex_count_;
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::remove_edge(VertexType from, VertexType to) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::remove_edge(VertexId from, VertexId to) {
     if (!has_edge(from, to)) {
         throw std::invalid_argument("Edge does not exist");
     }
@@ -109,8 +109,8 @@ void Graph<VertexType, WeightType>::remove_edge(VertexType from, VertexType to) 
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::remove_vertex(VertexType vertex) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::remove_vertex(VertexId vertex) {
     if (!has_vertex(vertex)) {
         throw std::invalid_argument("Vertex does not exist");
     }
@@ -127,8 +127,8 @@ void Graph<VertexType, WeightType>::remove_vertex(VertexType vertex) {
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::reset_parameters() {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::reset_parameters() {
     // Reset all vertices
     for (auto& [id, vertex] : vertices_) {
         vertex.set_color(0);
@@ -138,8 +138,8 @@ void Graph<VertexType, WeightType>::reset_parameters() {
 }
 
 
-template <typename VertexType, typename WeightType>
-json Graph<VertexType, WeightType>::to_json() const {
+template <typename VertexId, typename Resource, typename WeightType>
+json Graph<VertexId, WeightType>::to_json() const {
     json j;
     j["vertices"] = json::array();
     j["edges"] = json::array();
@@ -168,8 +168,8 @@ json Graph<VertexType, WeightType>::to_json() const {
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::save_to_json(const std::string& filename) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::save_to_json(const std::string& filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Unable to open file for writing");
@@ -179,8 +179,8 @@ void Graph<VertexType, WeightType>::save_to_json(const std::string& filename) {
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::load_from_json(const std::string& filename) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::load_from_json(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Unable to open file for reading");
@@ -201,8 +201,8 @@ void Graph<VertexType, WeightType>::load_from_json(const std::string& filename) 
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::save_json_to_file(const std::string& filename, const json& data) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::save_json_to_file(const std::string& filename, const json& data) {
     std::string directory = "files";
     if (!fs::exists(directory)) {
         fs::create_directory(directory);
@@ -218,33 +218,33 @@ void Graph<VertexType, WeightType>::save_json_to_file(const std::string& filenam
 }
 
 
-template <typename VertexType, typename WeightType>
-const json Graph<VertexType, WeightType>::get_json() const {
+template <typename VertexId, typename Resource, typename WeightType>
+const json Graph<VertexId, WeightType>::get_json() const {
     return this->log_json_;
 }
 
 
-template <typename VertexType, typename WeightType>
-const std::unordered_map<VertexType, std::unordered_map<VertexType, Edge<VertexType, WeightType>>>& 
-Graph<VertexType, WeightType>::get_adjacency_list() const {
+template <typename VertexId, typename Resource, typename WeightType>
+const std::unordered_map<VertexId, std::unordered_map<VertexId, Edge<VertexId, WeightType>>>& 
+Graph<VertexId, WeightType>::get_adjacency_list() const {
     return adjacency_list_;
 }
 
 
-template <typename VertexType, typename WeightType>
-bool Graph<VertexType, WeightType>::operator==(const Graph& other) const {
+template <typename VertexId, typename Resource, typename WeightType>
+bool Graph<VertexId, WeightType>::operator==(const Graph& other) const {
     return vertices_ == other.vertices_ && adjacency_list_ == other.adjacency_list_;
 }
 
 
-template <typename VertexType, typename WeightType>
-bool Graph<VertexType, WeightType>::operator!=(const Graph& other) const {
+template <typename VertexId, typename Resource, typename WeightType>
+bool Graph<VertexId, WeightType>::operator!=(const Graph& other) const {
     return !(*this == other);
 }
 
 
-template <typename VertexType, typename WeightType>
-size_t Graph<VertexType, WeightType>::get_degree(const VertexType& vertex) const {
+template <typename VertexId, typename Resource, typename WeightType>
+size_t Graph<VertexId, WeightType>::get_degree(const VertexId& vertex) const {
     if (!has_vertex(vertex)) {
         throw std::invalid_argument("Vertex does not exist");
     }
@@ -253,8 +253,8 @@ size_t Graph<VertexType, WeightType>::get_degree(const VertexType& vertex) const
 
 
 
-template <typename VertexType, typename WeightType>
-bool Graph<VertexType, WeightType>::is_connected(const VertexType& from, const VertexType& to) const {
+template <typename VertexId, typename Resource, typename WeightType>
+bool Graph<VertexId, WeightType>::is_connected(const VertexId& from, const VertexId& to) const {
     return has_edge(from, to);
 }
 
@@ -262,8 +262,8 @@ bool Graph<VertexType, WeightType>::is_connected(const VertexType& from, const V
 
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::set_edge_weight(const VertexType& from, const VertexType& to, 
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::set_edge_weight(const VertexId& from, const VertexId& to, 
                                                    const WeightType& weight) {
     if (!has_edge(from, to)) {
         throw std::invalid_argument("Edge does not exist");
@@ -274,8 +274,8 @@ void Graph<VertexType, WeightType>::set_edge_weight(const VertexType& from, cons
 
 
 
-template <typename VertexType, typename WeightType>
-const Vertex<VertexType, WeightType>& Graph<VertexType, WeightType>::get_vertex(const VertexType& id) const {
+template <typename VertexId, typename Resource, typename WeightType>
+const Vertex<VertexId, WeightType>& Graph<VertexId, WeightType>::get_vertex(const VertexId& id) const {
     if (!has_vertex(id)) {
         throw std::invalid_argument("Vertex does not exist");
     }
@@ -283,9 +283,9 @@ const Vertex<VertexType, WeightType>& Graph<VertexType, WeightType>::get_vertex(
 }
 
 
-template <typename VertexType, typename WeightType>
-const Edge<VertexType, WeightType>& Graph<VertexType, WeightType>::get_edge(const VertexType& from, 
-                                                                           const VertexType& to) const {
+template <typename VertexId, typename Resource, typename WeightType>
+const Edge<VertexId, WeightType>& Graph<VertexId, WeightType>::get_edge(const VertexId& from, 
+                                                                           const VertexId& to) const {
     if (!has_edge(from, to)) {
         throw std::invalid_argument("Edge does not exist");
     }
@@ -294,37 +294,37 @@ const Edge<VertexType, WeightType>& Graph<VertexType, WeightType>::get_edge(cons
 
 
 
-template <typename VertexType, typename WeightType>
-const std::unordered_map<VertexType, Vertex<VertexType, WeightType>>& 
-Graph<VertexType, WeightType>::get_vertices() const {
+template <typename VertexId, typename Resource, typename WeightType>
+const std::unordered_map<VertexId, Vertex<VertexId, WeightType>>& 
+Graph<VertexId, WeightType>::get_vertices() const {
     return vertices_;
 }
 
 
 
-template <typename VertexType, typename WeightType>
-bool Graph<VertexType, WeightType>::has_vertex(const VertexType& vertex) const {
+template <typename VertexId, typename Resource, typename WeightType>
+bool Graph<VertexId, WeightType>::has_vertex(const VertexId& vertex) const {
     return vertices_.find(vertex) != vertices_.end();
 }
 
 
 
-template <typename VertexType, typename WeightType>
-bool Graph<VertexType, WeightType>::has_edge(const VertexType& from, const VertexType& to) const {
+template <typename VertexId, typename Resource, typename WeightType>
+bool Graph<VertexId, WeightType>::has_edge(const VertexId& from, const VertexId& to) const {
     auto it = adjacency_list_.find(from);
     if (it == adjacency_list_.end()) return false;
     return it->second.find(to) != it->second.end();
 }
 
 
-template <typename VertexType, typename WeightType>
-size_t Graph<VertexType, WeightType>::vertex_count() const noexcept {
+template <typename VertexId, typename Resource, typename WeightType>
+size_t Graph<VertexId, WeightType>::vertex_count() const noexcept {
     return vertex_count_;
 }
 
 
-template <typename VertexType, typename WeightType>
-size_t Graph<VertexType, WeightType>::edge_count() const noexcept {
+template <typename VertexId, typename Resource, typename WeightType>
+size_t Graph<VertexId, WeightType>::edge_count() const noexcept {
     size_t count = 0;
     for (const auto& [_, edges] : adjacency_list_) {
         count += edges.size();
@@ -333,14 +333,14 @@ size_t Graph<VertexType, WeightType>::edge_count() const noexcept {
 }
 
 
-template <typename VertexType, typename WeightType>
-bool Graph<VertexType, WeightType>::is_empty() const noexcept {
+template <typename VertexId, typename Resource, typename WeightType>
+bool Graph<VertexId, WeightType>::is_empty() const noexcept {
     return vertex_count_ == 0;
 }
 
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::clear() {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, WeightType>::clear() {
     adjacency_list_.clear();
     vertices_.clear();
     vertex_count_ = 0;
