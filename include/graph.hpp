@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <nlohmann/json_fwd.hpp>
 #include "../../Data_Structures/Containers/Dynamic_Array.hpp"
+#include "../../Data_Structures/SmartPtrs/include/SharedPtr.hpp"
 #include <cerrno>
 #include <filesystem>
 #include <nlohmann/json.hpp>
@@ -16,14 +17,18 @@ using json = nlohmann::json;
 template <typename VertexId, typename Resource, typename WeightType>
 class Graph {
 private:
-    std::unordered_map<VertexId, std::unordered_map<VertexId, WeightType>> adjacency_list_;
     std::unordered_map<VertexId, Vertex<VertexId, Resource>> vertex_pool_;
+
+    DynamicArray<Edge<VertexId, WeightType>> edges_;
+    
+    std::unordered_map<VertexId, std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>> adjacency_list_;
 
     size_t vertex_count_;
 
     json log_json_;
     
     void resize(size_t new_size);
+
     void initialize_graph(size_t n);
 
 public:
@@ -45,6 +50,7 @@ public:
     void add_edge(VertexId from, VertexId to, WeightType weight);
 
     void add_vertex(VertexId id);
+    void add_vertex(VertexId id, const Resource& data);
 
     void remove_edge(VertexId from, VertexId to);
 
@@ -60,7 +66,7 @@ public:
 
     void save_json_to_file(const std::string& filename, const json& data);
 
-    const std::unordered_map<VertexId, std::unordered_map<VertexId, WeightType>>& get_adjacency_list() const;
+    const std::unordered_map<VertexId, std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>>& get_adjacency_list() const; 
    
     bool operator==(const Graph& other) const;
     bool operator!=(const Graph& other) const;
@@ -72,6 +78,8 @@ public:
     void set_edge_weight(const VertexId& from, const VertexId& to, const WeightType& weight);
 
     const Vertex<VertexId, Resource>& get_vertex(const VertexId& id) const;
+
+    const Edge<VertexId, WeightType>& get_edge(const VertexId& from, const VertexId& to) const; 
     
     const WeightType& get_edge_weight(const VertexId& from, const VertexId& to) const;
     
@@ -205,8 +213,3 @@ public:
 
 
 #include "../src/graph.tpp"
-#include "../src/algorithms/dfs.tpp"
-#include "../src/algorithms/bfs.tpp"
-#include "../src/algorithms/components.tpp"
-#include "../src/generators.tpp"
-#include "../src/algorithms/bridges_and_articulation_points.tpp"

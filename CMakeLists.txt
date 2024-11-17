@@ -27,9 +27,9 @@ find_package(GTest REQUIRED)
 find_package(nlohmann_json 3.11.3 REQUIRED)
 
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
-file(GLOB_RECURSE ALGORITHM_FILES src/algorithms/*.tpp)
+#file(GLOB_RECURSE ALGORITHM_FILES src/algorithms/*.tpp)
 file(GLOB_RECURSE GRAPH_FILES src/graph.tpp)
-set(ALL_SRC_FILES ${SRC_FILES} ${ALGORITHM_FILES} ${GRAPH_FILES})
+set(ALL_SRC_FILES ${SRC_FILES} ${GRAPH_FILES}) #then add ${ALGORITHM_FILES}$ 
 
 add_executable(graphs ${ALL_SRC_FILES})
 target_compile_options(graphs PRIVATE -std=c++20)

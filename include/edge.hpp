@@ -29,7 +29,7 @@ public:
 
     const VertexId& get_from() const;
     const VertexId& get_to() const;
-    const W& get_weight() const;
+    const W get_weight() const;
 
     void set_weight(W new_weight);
 

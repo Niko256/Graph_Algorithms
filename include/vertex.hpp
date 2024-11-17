@@ -18,8 +18,6 @@ public:
 
     Vertex(VertexId id);
 
-    Vertex(VertexId id, Resource data);
-
     Vertex(VertexId id, const Resource& data);
 
     Vertex(VertexId id, Resource&& data);

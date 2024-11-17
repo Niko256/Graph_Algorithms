@@ -1,21 +1,25 @@
 #include "../include/vertex.hpp"
 
 template <typename VertexId, typename Resource>
-Vertex<VertexId, Resource>::Vertex(VertexId id, Resource data) : id_(id), data_(new Resource(data)) {}
-
-template <typename VertexId, typename Resource>
 Vertex<VertexId, Resource>::Vertex(VertexId id) : id_(id), data_(nullptr) {}
-
-template <typename VertexId, typename Resource>
-Vertex<VertexId, Resource>::Vertex(VertexId id, const Resource& data) : id_(id), data_(new Resource(data)) {}
 
 template <typename VertexId, typename Resource>
 Vertex<VertexId, Resource>::Vertex(VertexId id, Resource&& data) : id_(id), data_(new Resource(std::move(data))) {}
 
 template <typename VertexId, typename Resource>
+Vertex<VertexId, Resource>::Vertex(VertexId id, const Resource& data) : 
+    id_(id), 
+    data_(make_unique<Resource>(data)), 
+    visited_(false), 
+    color_(0), 
+    discovery_time_(-1), 
+    finish_time_(-1) {}
+
+
+template <typename VertexId, typename Resource>
 Vertex<VertexId, Resource>::Vertex(const Vertex& other) : 
     id_(other.id_),
-    data_(*(other.get_data()) ? new Resource(*other.data_) : nullptr),
+    data_(other.get_data() == 0 ? make_unique<Resource>(*other.data_) : nullptr),
     visited_(other.visited_),
     color_(other.color_),
     discovery_time_(other.discovery_time_),
