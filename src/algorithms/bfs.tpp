@@ -5,10 +5,10 @@
 #include <filesystem>
 #include <stdexcept>
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::breadth_first_search(VertexType start) {
+template <typename VertexType, typename Resource, typename WeightType>
+void Graph<VertexType, Resource, WeightType>::breadth_first_search(VertexType start) {
     // Check if graph is empty
-    if (vertices_.empty()) {
+    if (vertex_pool_.empty()) {
         throw std::runtime_error("Cannot perform BFS on empty graph");
     }
 
@@ -21,7 +21,7 @@ void Graph<VertexType, WeightType>::breadth_first_search(VertexType start) {
 
     // Create parameters for logging
     json parameters;
-    parameters["vertex_count"] = vertices_.size();
+    parameters["vertex_count"] = vertex_pool_.size();
     parameters["start_vertex"] = start;
     save_json_to_file("bfs_parameters.json", parameters);
 
@@ -29,8 +29,8 @@ void Graph<VertexType, WeightType>::breadth_first_search(VertexType start) {
     size_t timer = 0;
     
     queue.enqueue(start);
-    vertices_[start].set_color(1); // Gray
-    vertices_[start].set_discovery_time(timer++);
+    vertex_pool_[start].set_color(1); // Gray
+    vertex_pool_[start].set_discovery_time(timer++);
 
     while (!queue.empty()) {
         VertexType current = queue.front();
@@ -38,15 +38,15 @@ void Graph<VertexType, WeightType>::breadth_first_search(VertexType start) {
 
         // Check all neighbors of current vertex
         for (const auto& [neighbor, edge] : adjacency_list_[current]) {
-            if (vertices_[neighbor].get_color() == 0) { // White vertex
+            if (vertex_pool_[neighbor].get_color() == 0) { // White vertex
                 queue.enqueue(neighbor);
-                vertices_[neighbor].set_color(1); // Gray
-                vertices_[neighbor].set_discovery_time(timer++);
+                vertex_pool_[neighbor].set_color(1); // Gray
+                vertex_pool_[neighbor].set_discovery_time(timer++);
             }
         }
 
         // Finish current vertex
-        vertices_[current].set_color(2); // Black
-        vertices_[current].set_finish_time(timer++);
+        vertex_pool_[current].set_color(2); // Black
+        vertex_pool_[current].set_finish_time(timer++);
     }
 }

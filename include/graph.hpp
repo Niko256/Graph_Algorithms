@@ -213,3 +213,6 @@ public:
 
 
 #include "../src/graph.tpp"
+#include "../src/algorithms/dfs.tpp"
+#include "../src/algorithms/bfs.tpp"
+#include "../src/algorithms/components.tpp"

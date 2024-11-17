@@ -11,45 +11,53 @@
 using json = nlohmann::json;
 
 
-template <typename VertexType, typename WeightType>
-DynamicArray<DynamicArray<VertexType>> Graph<VertexType, WeightType>::find_connected_components() {
-    if (vertex_count_ == 0) throw std::runtime_error("Cannot find components in empty graph");
-
-    if (adjacency_list_.size() == 0) {
-        throw std::runtime_error("Adjacency list is not initialized");
+template <typename VertexId, typename Resource, typename WeightType>
+DynamicArray<DynamicArray<VertexId>> Graph<VertexId, Resource, WeightType>::find_connected_components() {
+    if (vertex_count_ == 0) {
+        throw std::runtime_error("Cannot find components in empty graph");
     }
 
-    DynamicArray<DynamicArray<VertexType>> components;
-    
-    reset_parameters();
+    if (vertex_pool_.empty()) {
+        throw std::runtime_error("Vertex pool is not initialized");
+    }
+
+    DynamicArray<DynamicArray<VertexId>> components;
+    std::unordered_map<VertexId, bool> visited;
+
+    // Initialize visited map for all vertices
+    for (const auto& [id, _] : vertex_pool_) {
+        visited[id] = false;
+    }
 
     // Process each unvisited vertex
-    for (auto& [start_vertex, vertex] : vertices_) {
-        if (vertex.get_color() == 0) { // Unvisited vertex
-            // Start new component
-            DynamicArray<VertexType> current_component;
-            Stack<VertexType> stack;
+    for (const auto& [vertex_id, _] : vertex_pool_) {
+        if (!visited[vertex_id]) {
+            DynamicArray<VertexId> current_component;
+            Stack<VertexId> stack;
             
-            // Initialize DFS from current vertex
-            stack.push(start_vertex);
-            vertices_[start_vertex].set_color(1); // Mark as visited
-            current_component.push_back(start_vertex);
+            // Process current component
+            stack.push(vertex_id);
+            visited[vertex_id] = true;
+            current_component.push_back(vertex_id);
 
             while (!stack.empty()) {
-                VertexType current = stack.top();
+                VertexId current = stack.top();
                 stack.pop();
 
-                // Check all neighbors in adjacency list
-                for (const auto& [neighbor, edge] : adjacency_list_[current]) {
-                    if (vertices_[neighbor].get_color() == 0) { // Unvisited neighbor
-                        stack.push(neighbor);
-                        vertices_[neighbor].set_color(1); // Mark as visited
-                        current_component.push_back(neighbor);
+                // Check if current vertex exists in adjacency list
+                auto adj_it = adjacency_list_.find(current);
+                if (adj_it != adjacency_list_.end()) {
+                    // Process all neighbors
+                    for (const auto& [neighbor_id, edge] : adj_it->second) {
+                        if (!visited[neighbor_id]) {
+                            stack.push(neighbor_id);
+                            visited[neighbor_id] = true;
+                            current_component.push_back(neighbor_id);
+                        }
                     }
                 }
             }
             
-            // Add completed component to results
             components.push_back(std::move(current_component));
         }
     }
@@ -62,13 +70,18 @@ DynamicArray<DynamicArray<VertexType>> Graph<VertexType, WeightType>::find_conne
     for (size_t i = 0; i < components.size(); ++i) {
         json component;
         component["vertices"] = json::array();
-
-        for (const auto& vertex: components[i]) {
+        for (const auto& vertex : components[i]) {
             component["vertices"].push_back(vertex);
         }
         components_data["components"].push_back(component);
     }
 
+    // Save to file with directory creation
+    std::string directory = "files";
+    if (!std::filesystem::exists(directory)) {
+        std::filesystem::create_directory(directory);
+    }
     save_json_to_file("components.json", components_data);
+
     return components;
 }

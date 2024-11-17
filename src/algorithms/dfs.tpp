@@ -5,10 +5,10 @@
 #include <filesystem>
 #include <stdexcept>
 
-template <typename VertexType, typename WeightType>
-void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
+template <typename VertexId, typename Resource, typename WeightType>
+void Graph<VertexId, Resource, WeightType>::depth_first_search(VertexId start) {
     // Check if graph is empty
-    if (vertices_.empty()) {
+    if (vertex_pool_.empty()) {
         throw std::runtime_error("Cannot perform DFS on empty graph");
     }
 
@@ -21,35 +21,35 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
 
     // Create parameters for logging
     json parameters;
-    parameters["vertex_count"] = vertices_.size();
+    parameters["vertex_count"] = vertex_pool_.size();
     parameters["start_vertex"] = start;
     save_json_to_file("dfs_parameters.json", parameters);
 
-    Stack<VertexType> stack;
+    Stack<VertexId> stack;
     size_t timer = 0;
 
     // Start DFS from the start vertex
     stack.push(start);
-    vertices_[start].set_color(1); // Gray
-    vertices_[start].set_discovery_time(timer++);
+    vertex_pool_[start].set_color(1); // Gray
+    vertex_pool_[start].set_discovery_time(timer++);
 
     // Handle single-vertex case
-    if (vertices_.size() == 1) {
-        vertices_[start].set_color(2); // Black
-        vertices_[start].set_finish_time(timer++);
+    if (vertex_pool_.size() == 1) {
+        vertex_pool_[start].set_color(2); // Black
+        vertex_pool_[start].set_finish_time(timer++);
         return;
     }
 
     while (!stack.empty()) {
-        VertexType current = stack.top();
+        VertexId current = stack.top();
         bool has_unvisited_neighbors = false;
 
         // Check all neighbors of current vertex
-        for (const auto& [neighbor, edge] : adjacency_list_[current]) {
-            if (vertices_[neighbor].get_color() == 0) { // White vertex
+        for (const auto& [neighbor, edge_ptr] : adjacency_list_[current]) {
+            if (vertex_pool_[neighbor].get_color() == 0) { // White vertex
                 stack.push(neighbor);
-                vertices_[neighbor].set_color(1); // Gray
-                vertices_[neighbor].set_discovery_time(timer++);
+                vertex_pool_[neighbor].set_color(1); // Gray
+                vertex_pool_[neighbor].set_discovery_time(timer++);
                 has_unvisited_neighbors = true;
                 break;
             }
@@ -58,8 +58,8 @@ void Graph<VertexType, WeightType>::depth_first_search(VertexType start) {
         // If all neighbors are visited, finish current vertex
         if (!has_unvisited_neighbors) {
             stack.pop();
-            vertices_[current].set_color(2); // Black
-            vertices_[current].set_finish_time(timer++);
+            vertex_pool_[current].set_color(2); // Black
+            vertex_pool_[current].set_finish_time(timer++);
         }
     }
 }
