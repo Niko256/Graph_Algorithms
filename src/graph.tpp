@@ -180,7 +180,7 @@ void Graph<VertexId, Resource, WeightType>::reset_parameters() {
 }
 
 template <typename VertexId, typename Resource, typename WeightType>
-json Graph<VertexId, Resource, WeightType>::to_json() const {
+json Graph<VertexId, Resource, WeightType>::to_json() {
     json j;
     j["vertices"] = json::array();
     j["edges"] = json::array();

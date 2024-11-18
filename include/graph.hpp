@@ -58,7 +58,7 @@ public:
 
     void reset_parameters();
 
-    json to_json() const;
+    json to_json();
 
     void save_to_json(const std::string& filename);
 
@@ -216,3 +216,4 @@ public:
 #include "../src/algorithms/dfs.tpp"
 #include "../src/algorithms/bfs.tpp"
 #include "../src/algorithms/components.tpp"
+#include "../src/generators.tpp"
