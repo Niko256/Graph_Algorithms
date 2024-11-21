@@ -121,6 +121,7 @@ TEST_F(ConnectedComponentsTest, MultipleComponents) {
     EXPECT_EQ(component_sizes[1], 3);
 }
 
+
 // Test graph with self-loops
 TEST_F(ConnectedComponentsTest, GraphWithSelfLoops) {
     graph.add_vertex(0, Warehouse(1000, 0.5));

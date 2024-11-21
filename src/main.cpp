@@ -55,19 +55,24 @@ private:
     void print_topology_menu() const {
         std::cout << "\nTopology Selection Menu\n"
                   << "=====================\n\n"
-                  << "1. Basic Graphs\n"
-                  << "   - Complete Graph\n"
-                  << "   - Path Graph\n"
-                  << "   - Cycle Graph\n"
-                  << "2. Special Graphs\n"
-                  << "   - Star Graph\n"
-                  << "   - Grid Graph\n"
-                  << "   - Hypercube Graph\n"
-                  << "3. Tree\n"
-                  << "   - Random Tree\n"
-                  << "4. Bipartite Graphs\n"
-                  << "   - Regular Bipartite\n"
-                  << "   - Complete Bipartite\n"
+                  << "1. Complete Graph\n"
+                  << "2. Path Graph\n"
+                  << "3. Cycle Graph\n"
+                  << "4. Star Graph\n"
+                  << "5. Random Tree\n"
+                  << "6. Regular Bipartite Graph\n"
+                  << "7. Complete Bipartite Graph\n"
+                  << "8. Back to Creation Menu\n\n"
+                  << "Choose option: ";
+    }
+
+    void print_edit_menu() const {
+        std::cout << "\nEdit Graph Menu\n"
+                  << "===============\n\n"
+                  << "1. Add Vertex\n"
+                  << "2. Remove Vertex\n"
+                  << "3. Add Edge\n"
+                  << "4. Remove Edge\n"
                   << "5. Back to Creation Menu\n\n"
                   << "Choose option: ";
     }
@@ -77,33 +82,40 @@ private:
         std::cout << "Enter number of vertices: ";
         std::cin >> vertex_count;
 
-        graph_ = std::make_unique<Graph<int, int, int>>(vertex_count);
-
-        // Initialize vertices first
-        for(int i = 0; i < vertex_count; ++i) {
-            graph_->add_vertex(i, i); // Using vertex id as both identifier and resource
-        }
+        // Create a new graph instance with the specified vertex count
+        graph_ = std::make_unique<Graph<int, int, int>>();
+        graph_->initialize_graph(vertex_count); // This will clear any existing graph and set up a new one
 
         std::cout << "Enter edges (format: from to weight, enter -1 to stop):" << std::endl;
         while (true) {
             int from;
             std::cin >> from;
             if (from == -1) break;
-
+        
             int to, weight;
             std::cin >> to >> weight;
-
+        
             try {
+                // Validate vertex indices
+                if (from >= vertex_count || to >= vertex_count) {
+                    std::cout << "\nError: Vertex index out of range" << std::endl;
+                    continue;
+                }
+            
                 graph_->add_edge(from, to, weight);
             } catch (const std::exception& e) {
                 std::cout << "\nError adding edge: " << e.what() << std::endl;
             }
         }
-
-        graph_->save_to_json(parameters_file_);
+    
+        try {
+            graph_->save_to_json(parameters_file_);
+            std::cout << "\nGraph created successfully!" << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error saving graph: " << e.what() << std::endl;
+        }
     }
 
-    // Rest of the handle functions remain the same, just updating Graph template parameters
     void handle_topology_selection() {
         while (true) {
             print_topology_menu();
@@ -114,68 +126,44 @@ private:
                 size_t n, m;
                 double prob;
                 switch (choice) {
-                    case 1: // Basic Graphs
-                        std::cout << "Select type (1-Complete, 2-Path, 3-Cycle): ";
-                        int type;
-                        std::cin >> type;
+                    case 1: // Complete Graph
                         std::cout << "Enter number of vertices: ";
                         std::cin >> n;
-                        switch (type) {
-                            case 1: graph_->generate_complete_graph(n); break;
-                            case 2: graph_->generate_path_graph(n); break;
-                            case 3: graph_->generate_cycle_graph(n); break;
-                            default: std::cout << "\nInvalid choice\n"; continue;
-                        }
+                        graph_->generate_complete_graph(n);
                         break;
-                    case 2: // Special Graphs
-                        std::cout << "Select type (1-Star, 2-Grid, 3-Hypercube): ";
-                        std::cin >> type;
-                        switch (type) {
-                            case 1:
-                                std::cout << "Enter number of vertices: ";
-                                std::cin >> n;
-                                graph_->generate_star_graph(n);
-                                break;
-                            case 2:
-                                std::cout << "Enter grid dimensions (m n): ";
-                                std::cin >> m >> n;
-                                graph_->generate_grid_graph(m, n);
-                                break;
-                            case 3:
-                                std::cout << "Enter dimension: ";
-                                std::cin >> n;
-                                graph_->generate_hypercube_graph(n);
-                            default: std::cout << "\nInvalid choice\n"; continue;
-                        }
-                        break;
-                    case 3: // Random Graphs
-                        std::cout << "Select type (1-Tree, 2-Connected): ";
-                        std::cin >> type;
+                    case 2: // Path Graph
                         std::cout << "Enter number of vertices: ";
                         std::cin >> n;
-                        switch (type) {
-                            case 1: graph_->generate_tree(n); break;
-                            default: std::cout << "\nInvalid choice\n"; continue;
-                        }
+                        graph_->generate_path_graph(n);
                         break;
-                    case 4: // Bipartite Graphs
-                        std::cout << "Select type (1-Regular, 2-Complete): ";
-                        std::cin >> type;
+                    case 3: // Cycle Graph
+                        std::cout << "Enter number of vertices: ";
+                        std::cin >> n;
+                        graph_->generate_cycle_graph(n);
+                        break;
+                    case 4: // Star Graph
+                        std::cout << "Enter number of vertices: ";
+                        std::cin >> n;
+                        graph_->generate_star_graph(n);
+                        break;
+                    case 5: // Random Tree
+                        std::cout << "Enter number of vertices: ";
+                        std::cin >> n;
+                        graph_->generate_tree(n);
+                        break;
+                    case 6: // Regular Bipartite Graph
                         std::cout << "Enter parts sizes (m n): ";
                         std::cin >> m >> n;
-                        switch (type) {
-                            case 1:
-                                std::cout << "Enter edge probability (0-1): ";
-                                std::cin >> prob;
-                                graph_->generate_bipartite_graph(m, n, prob);
-                                break;
-                            case 2:
-                                graph_->generate_complete_bipartite_graph(m, n);
-                                break;
-                            default: std::cout << "\nInvalid choice\n"; continue;
-                        }
+                        std::cout << "Enter edge probability (0-1): ";
+                        std::cin >> prob;
+                        graph_->generate_bipartite_graph(m, n, prob);
                         break;
-                    case 5: return;
+                    case 7: // Complete Bipartite Graph
+                        std::cout << "Enter parts sizes (m n): ";
+                        std::cin >> m >> n;
+                        graph_->generate_complete_bipartite_graph(m, n);
+                        break;
+                    case 8: return;
                     default: std::cout << "\nInvalid option!" << std::endl; continue;
                 }
                 graph_->save_to_json(parameters_file_);
@@ -198,9 +186,7 @@ private:
                     case 1: handle_manual_creation(); break;
                     case 2: handle_topology_selection(); break;
                     case 3: run_visualization("graph_visualization.py"); break;
-                    case 4: // Edit current graph - TODO
-                        std::cout << "\nFeature coming soon!\n";
-                        break;
+                    case 4: handle_edit_graph(); break;
                     case 5: return;
                     default: std::cout << "\nInvalid option!" << std::endl;
                 }
@@ -236,10 +222,8 @@ private:
 
     void handle_traversal_algorithms() {
         std::cout << "\nTraversal Algorithms:\n"
-                  << "1. Run BFS\n"
-                  << "2. Run DFS\n"
-                  << "3. Visualize BFS\n"
-                  << "4. Visualize DFS\n"
+                  << "1. Run and Visualize BFS\n"
+                  << "2. Run and Visualize DFS\n"
                   << "Choose option: ";
 
         int choice;
@@ -247,10 +231,8 @@ private:
 
         try {
             switch(choice) {
-                case 1: run_bfs(); break;
-                case 2: run_dfs(); break;
-                case 3: run_visualization("bfs_visualization.py"); break;
-                case 4: run_visualization("dfs_visualization.py"); break;
+                case 1: run_bfs_and_visualize(); break;
+                case 2: run_dfs_and_visualize(); break;
                 default: std::cout << "Invalid option!" << std::endl;
             }
         } catch (const std::exception& e) {
@@ -260,8 +242,7 @@ private:
 
     void handle_connectivity_algorithms() {
         std::cout << "\nConnectivity Algorithms:\n"
-                  << "1. Find Connected Components\n"
-                  << "2. Visualize Components\n"
+                  << "1. Find and Visualize Connected Components\n"
                   << "Choose option: ";
 
         int choice;
@@ -269,8 +250,7 @@ private:
 
         try {
             switch(choice) {
-                case 1: find_components(); break;
-                case 2: run_visualization("find_components.py"); break;
+                case 1: find_components_and_visualize(); break;
                 default: std::cout << "\nInvalid option!" << std::endl;
             }
         } catch (const std::exception& e) {
@@ -287,7 +267,7 @@ private:
         }
     }
 
-    void run_bfs() {
+    void run_bfs_and_visualize() {
         if (!graph_ || graph_->is_empty()) {
             std::cout << "\nPlease create a graph first!" << std::endl;
             return;
@@ -300,12 +280,13 @@ private:
         try {
             graph_->breadth_first_search(start);
             std::cout << "\nBFS completed successfully!" << std::endl;
+            run_visualization("bfs_visualization.py");
         } catch (const std::exception& e) {
             std::cerr << "Error during BFS: " << e.what() << std::endl;
         }
     }
 
-    void run_dfs() {
+    void run_dfs_and_visualize() {
         if (!graph_ || graph_->is_empty()) {
             std::cout << "\nPlease create a graph first!" << std::endl;
             return;
@@ -318,12 +299,13 @@ private:
         try {
             graph_->depth_first_search(start);
             std::cout << "\nDFS completed successfully!" << std::endl;
+            run_visualization("dfs_visualization.py");
         } catch (const std::exception& e) {
             std::cerr << "Error during DFS: " << e.what() << std::endl;
         }
     }
 
-    void find_components() {
+    void find_components_and_visualize() {
         if (!graph_ || graph_->is_empty()) {
             std::cout << "\nPlease create a graph first!" << std::endl;
             return;
@@ -331,10 +313,55 @@ private:
         try {
             auto components = graph_->find_connected_components();
             std::cout << "\nFound " << components.size() << " components!" << std::endl;
+            run_visualization("find_components.py");
         } catch (const std::exception& e) {
             std::cerr << "Error finding components: " << e.what() << std::endl;
         }
-};
+    }
+
+    void handle_edit_graph() {
+        while (true) {
+            print_edit_menu();
+            int choice;
+            std::cin >> choice;
+
+            try {
+                switch(choice) {
+                    case 1: // Add Vertex
+                        int vertex_id;
+                        std::cout << "Enter vertex ID: ";
+                        std::cin >> vertex_id;
+                        graph_->add_vertex(vertex_id);
+                        std::cout << "\nVertex added successfully!" << std::endl;
+                        break;
+                    case 2: // Remove Vertex
+                        std::cout << "Enter vertex ID to remove: ";
+                        std::cin >> vertex_id;
+                        graph_->remove_vertex(vertex_id);
+                        std::cout << "\nVertex removed successfully!" << std::endl;
+                        break;
+                    case 3: // Add Edge
+                        int from, to, weight;
+                        std::cout << "Enter edge (from to weight): ";
+                        std::cin >> from >> to >> weight;
+                        graph_->add_edge(from, to, weight);
+                        std::cout << "\nEdge added successfully!" << std::endl;
+                        break;
+                    case 4: // Remove Edge
+                        std::cout << "Enter edge (from to): ";
+                        std::cin >> from >> to;
+                        graph_->remove_edge(from, to);
+                        std::cout << "\nEdge removed successfully!" << std::endl;
+                        break;
+                    case 5: return;
+                    default: std::cout << "\nInvalid option!" << std::endl;
+                }
+                graph_->save_to_json(parameters_file_);
+            } catch (const std::exception& e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+            }
+        }
+    }
 
 public:
     GraphManager() : graph_(std::make_unique<Graph<int, int, int>>()) {

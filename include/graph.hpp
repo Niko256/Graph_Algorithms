@@ -29,9 +29,9 @@ private:
     
     void resize(size_t new_size);
 
-    void initialize_graph(size_t n);
 
 public:
+
     Graph(const Graph& other);
 
     explicit Graph(size_t vertex_count);
@@ -46,6 +46,7 @@ public:
 
     ~Graph() = default;
 
+    void initialize_graph(size_t n);
 
     void add_edge(VertexId from, VertexId to, WeightType weight);
 
