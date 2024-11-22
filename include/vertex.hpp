@@ -43,6 +43,7 @@ public:
     void set_color(size_t other_color);
     void set_discovery_time(int d_time);
     void set_finish_time(int s_time);
+    void set_data(const UniquePtr<Resource>& data);
 };
 
 #include "../src/vertex.tpp"

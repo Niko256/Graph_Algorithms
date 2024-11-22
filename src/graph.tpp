@@ -137,6 +137,7 @@ void Graph<VertexId, Resource, WeightType>::add_vertex(VertexId id, const Resour
 }
 
 
+
 template <typename VertexId, typename Resource, typename WeightType>
 void Graph<VertexId, Resource, WeightType>::remove_edge(VertexId from, VertexId to) {
     if (!has_edge(from, to)) {

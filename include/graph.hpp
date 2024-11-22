@@ -142,62 +142,6 @@ public:
     void lca(VertexId u, VertexId v);
     void heavy_light_decomposition();
 
-    // Planarity
-    void kuratowski_planarity_test();
-    void outer_planarity_test();
-    void fruchterman_reingold();
-
-    // Network and flows
-    void max_flow_in_network(VertexId source, VertexId sink);
-    void min_cut_in_network(VertexId source, VertexId sink);
-    void min_cost_flow(VertexId source, VertexId sink);
-    void assignment_problem();
-
-    // Heuristic algorithms
-    void greedy_algorithms();
-    void christofides_algorithm();
-    void local_search();
-
-    // Random graphs
-    void erdos_renyi_model();
-    void barabasi_albert_model();
-    void random_graph_generation();
-    void random_graph_properties();
-
-    // Algorithms on dynamic graphs
-    void dynamic_mst();
-    void dynamic_connectivity();
-    void dynamic_shortest_paths();
-
-    // Algorithms on graphs with weights
-    void dijkstra_with_potentials(VertexId start);
-    void bellman_ford_with_negative_cycles(VertexId start);
-    void johnson_all_pairs_shortest_paths();
-
-
-    // Traveling Salesman Problem
-    void nearest_neighbor_tsp();
-    void two_opt_tsp();
-    void christofides_tsp();
-    void branch_and_bound_tsp();
-    void genetic_algorithm_tsp();
-
-    // Multi-criteria search
-    void epsilon_constrained_search();
-    void pareto_front_search();
-    void nsga_ii();
-    void spea2();
-
-    // Path search with the highest capacity
-    void ford_fulkerson_max_capacity_path(VertexId source, VertexId sink);
-    void dinic_max_capacity_path(VertexId source, VertexId sink);
-
-    // Knapsack problem
-    void knapsack_greedy();
-    void knapsack_dynamic_programming();
-    void knapsack_branch_and_bound();
-    void knapsack_genetic_algorithm();
-
 
     // Graph Generators
     void generate_complete_graph(size_t n);
@@ -218,3 +162,4 @@ public:
 #include "../src/algorithms/bfs.tpp"
 #include "../src/algorithms/components.tpp"
 #include "../src/generators.tpp"
+#include "../src/algorithms/dijkstra.tpp"

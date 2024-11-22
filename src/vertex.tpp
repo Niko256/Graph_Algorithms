@@ -118,3 +118,5 @@ template <typename VertexId, typename Resource>
 void Vertex<VertexId, Resource>::set_finish_time(int s_time) {
     finish_time_ = s_time;
 }
+
+

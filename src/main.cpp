@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 
 class GraphManager {
 private:
-    std::unique_ptr<Graph<int, int, int>> graph_; // Updated template parameters
+    std::unique_ptr<Graph<int, int, int>> graph_; 
     const std::string files_dir_ = "files";
     const std::string parameters_file_ = files_dir_ + "/graph_parameters.json";
 
