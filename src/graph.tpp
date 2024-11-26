@@ -11,7 +11,6 @@ template <typename VertexId, typename Resource, typename WeightType>
 Graph<VertexId, Resource, WeightType>::Graph(const Graph& other) : 
             adjacency_list_(other.adjacency_list_),
             vertex_pool_(other.vertex_pool_),
-            edges_(other.edges_),
             vertex_count_(other.vertex_count_),
             log_json_(other.log_json_) {}
 
@@ -21,7 +20,6 @@ Graph<VertexId, Resource, WeightType>& Graph<VertexId, Resource, WeightType>::op
     if (this != &other) {
         adjacency_list_ = other.adjacency_list_;
         vertex_pool_= other.vertex_pool_;
-        edges_ = other.edges_;
         vertex_count_ = other.vertex_count_;
         log_json_ = other.log_json_;
     }
@@ -43,8 +41,6 @@ void Graph<VertexId, Resource, WeightType>::initialize_graph(size_t n) {
     
     vertex_pool_.clear();
     
-    edges_.clear();
-    
     // Add vertices
     for(size_t i = 0; i < n; ++i) {
         vertex_pool_[i] = Vertex<VertexId, Resource>(i);
@@ -57,13 +53,11 @@ template <typename VertexId, typename Resource, typename WeightType>
 Graph<VertexId, Resource, WeightType>::Graph(Graph&& other) noexcept : 
     adjacency_list_(std::move(other.adjacency_list_)), 
     vertex_pool_(std::move(other.vertex_pool_)), 
-    edges_(std::move(other.edges_)),
     vertex_count_(other.vertex_count_),
     log_json_(std::move(other.log_json_)) {
         
         other.adjacency_list_.clear();
         other.vertex_pool_.clear();
-        other.edges_.clear();
         other.log_json_.clear();
         other.vertex_count_ = 0;
     }
@@ -74,14 +68,12 @@ Graph<VertexId, Resource, WeightType>& Graph<VertexId, Resource, WeightType>::op
     if (this != &other) {
         adjacency_list_ = std::move(other.adjacency_list_);
         vertex_pool_ = std::move(other.vertex_pool_);
-        edges_ = std::move(other.edges_);
         vertex_count_ = other.vertex_count_;
         log_json_ = std::move(other.log_json_);
         
         
         other.adjacency_list_.clear();
         other.vertex_pool_.clear();
-        other.edges_.clear();
         other.log_json_.clear();
         other.vertex_count_ = 0;
     }
@@ -104,10 +96,8 @@ void Graph<VertexId, Resource, WeightType>::add_edge(VertexId from, VertexId to,
 
     auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(new Edge<VertexId, WeightType>(from, to, weight));
 
-    edges_.push_back(*edge_ptr);
-    
     adjacency_list_[from][to] = edge_ptr;
-    adjacency_list_[to][from] = edge_ptr;
+    adjacency_list_[to][from] = SharedPtr(edge_ptr);
 }
 
 
@@ -144,13 +134,9 @@ void Graph<VertexId, Resource, WeightType>::remove_edge(VertexId from, VertexId 
         throw std::invalid_argument("Edge does not exist");
     }
 
-    auto edge_ptr = adjacency_list_[from][to];
-    edges_.erase(*edge_ptr);
-
     // remove from adjacency lists
     adjacency_list_[from].erase(to);
     adjacency_list_[to].erase(from);
-
 }
 
 
@@ -160,9 +146,8 @@ void Graph<VertexId, Resource, WeightType>::remove_vertex(VertexId vertex) {
         throw std::invalid_argument("Vertex does not exist");
     }
     
-    for (const auto& [v, edge_ptr] : adjacency_list_[vertex]) {
+    for (const auto& [v, _] : adjacency_list_[vertex]) {
         adjacency_list_[v].erase(vertex);
-        edges_.erase(*edge_ptr);
     }
 
     adjacency_list_.erase(vertex);
@@ -188,18 +173,26 @@ json Graph<VertexId, Resource, WeightType>::to_json() {
     
     j["vertex_count"] = vertex_count_;
     
+    std::unordered_map<VertexId, size_t> vertex_mapping;
+    size_t new_index = 0;
+
     for (const auto& [id, vertex] : vertex_pool_) {
         j["vertices"].push_back({
-            {"id", id}
+            {"id", new_index}
         });
+        vertex_mapping[id] = new_index++;
     }
     
-    for (const auto& edge : edges_) {
-        j["edges"].push_back({
-            {"from", edge.get_from()},
-            {"to", edge.get_to()},
-            {"weight", edge.get_weight()}
-        });
+    for (const auto& [from, edges] : adjacency_list_) {
+        for (const auto& [to, edge_ptr] : edges) {
+            if (from < to) {
+                j["edges"].push_back({
+                    {"from", vertex_mapping[from]},
+                    {"to", vertex_mapping[to]},
+                    {"weight", edge_ptr->get_weight()}
+                });
+            }
+        }
     }
     
     return j;
@@ -328,7 +321,11 @@ size_t Graph<VertexId, Resource, WeightType>::vertex_count() const noexcept {
 
 template <typename VertexId, typename Resource, typename WeightType>
 size_t Graph<VertexId, Resource, WeightType>::edge_count() const noexcept {
-    return edges_.size();
+    size_t count = 0;
+    for (const auto& [_, edges] : adjacency_list_) {
+        count += edges.size();
+    }
+    return count / 2;
 }
 
 template <typename VertexId, typename Resource, typename WeightType>
@@ -340,7 +337,6 @@ template <typename VertexId, typename Resource, typename WeightType>
 void Graph<VertexId, Resource, WeightType>::clear() {
     adjacency_list_.clear();
     vertex_pool_.clear();
-    edges_.clear();
     vertex_count_ = 0;
 }
 

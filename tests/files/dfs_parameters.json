@@ -1,4 +1,4 @@
 {
-    "start_vertex": 1,
-    "vertex_count": 5
+    "start_vertex": 0,
+    "vertex_count": 100000
 }

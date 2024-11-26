@@ -1,3 +1,4 @@
+#include <exception>
 #include <iostream>
 #include <filesystem>
 #include <memory>
@@ -205,7 +206,7 @@ private:
             try {
                 switch(choice) {
                     case 1: handle_traversal_algorithms(); break;
-                    case 2: // Path finding - TODO
+                    case 2: handle_shortest_path_algorithms(); break; 
                     case 3: handle_connectivity_algorithms(); break;
                     case 4: // Tree algorithms - TODO
                     case 5: // Flow algorithms - TODO
@@ -257,6 +258,43 @@ private:
             std::cerr << "Error: " << e.what() << std::endl;
         }
     }
+
+    void handle_shortest_path_algorithms() {
+        std::cout << "\nShortest Path Algorithms: \n"
+                  << "1. Run and Visualize Dijkstra\n"
+                  << "Choose option: ";
+        int choice;
+        std::cin >> choice;
+
+        try {
+            switch (choice) {
+                case 1: run_dijkstra_and_visualize(); break;
+                default: std::cout << "Invalid option!" << std::endl;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
+
+    void run_dijkstra_and_visualize() {
+        if (!graph_ || graph_->is_empty()) {
+            std::cout << "\nPlease create graph first!" << std::endl;
+            return;
+        }
+
+        std::cout << "Enter start vertex (0 to " << graph_->vertex_count() - 1 << "): ";
+        int start;
+        std::cin >> start;
+
+        try {
+            graph_->dijkstra(start);
+            std::cout << "\nDijkstra's algorithm completed successfully!" << std::endl;
+            run_visualization("dijkstra_visualization.py");
+        } catch (const std::exception& e) {
+            std::cerr << "Error during Dijkstra algorithm: " << e.what() << std::endl;
+        }
+    }
+
 
     void run_visualization(const std::string& script_name) {
         std::string command = "../visualization/run_manim.sh " + script_name;

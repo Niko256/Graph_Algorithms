@@ -1,8 +1,8 @@
 #include "../../include/graph.hpp"
-#include "../../../Data_Structures/Containers/Dynamic_Array.hpp"
-#include "../../../Data_Structures/Containers/Pair.hpp"
-#include "../../../Data_Structures/Containers/Priority_Queue.hpp"
-#include "../../../Data_Structures/Containers/Queue.hpp"
+#include "../../dependencies/Data_Structures/Containers/Dynamic_Array.hpp"
+#include "../../dependencies/Data_Structures/Containers/Pair.hpp"
+#include "../../dependencies/Data_Structures/Containers/Priority_Queue.hpp"
+#include "../../dependencies/Data_Structures/Containers/Queue.hpp"
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -59,7 +59,7 @@ void Graph<VertexId, Resource, WeightType>::dijkstra(VertexId start) {
         auto current_node = pq.top();
         pq.pop();
         
-        auto current = current_node.get_item(); // Extract Pair from PriorityNode
+        auto current = current_node.item; // Extract Pair from PriorityNode
         VertexId current_vertex = current.second_;
         WeightType current_distance = current.first_;
 

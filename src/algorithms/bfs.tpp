@@ -1,6 +1,6 @@
 #include "../../include/graph.hpp"
-#include "../../../Data_Structures/Containers/Queue.hpp"
-#include "../../../Data_Structures/Containers/Dynamic_Array.hpp"
+#include "../../dependencies/Data_Structures/Containers/Queue.hpp"
+#include "../../dependencies/Data_Structures/Containers/Dynamic_Array.hpp"
 #include <fstream>
 #include <filesystem>
 #include <stdexcept>

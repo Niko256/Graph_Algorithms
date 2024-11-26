@@ -9,9 +9,8 @@ void Graph<VertexId, Resource, WeightType>::generate_complete_graph(size_t n) {
     for (size_t i = 0; i < n; ++i) {
         for (size_t j = i + 1; j < n; ++j) {
             auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(new Edge<VertexId, WeightType>(i, j, 1));
-            edges_.push_back(*edge_ptr);
             adjacency_list_[i][j] = edge_ptr;
-            adjacency_list_[j][i] = edge_ptr;
+            adjacency_list_[j][i] = SharedPtr(edge_ptr);
         }
     }
 }
@@ -26,9 +25,8 @@ void Graph<VertexId, Resource, WeightType>::generate_cycle_graph(size_t n) {
         auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
             new Edge<VertexId, WeightType>(i, (i + 1) % n, 1)
         );
-        edges_.push_back(*edge_ptr);
         adjacency_list_[i][(i + 1) % n] = edge_ptr;
-        adjacency_list_[(i + 1) % n][i] = edge_ptr;
+        adjacency_list_[(i + 1) % n][i] = SharedPtr(edge_ptr);
     }
 }
 
@@ -42,9 +40,8 @@ void Graph<VertexId, Resource, WeightType>::generate_path_graph(size_t n) {
         auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
             new Edge<VertexId, WeightType>(i, i + 1, 1)
         );
-        edges_.push_back(*edge_ptr);
         adjacency_list_[i][i + 1] = edge_ptr;
-        adjacency_list_[i + 1][i] = edge_ptr;
+        adjacency_list_[i + 1][i] = SharedPtr(edge_ptr);
     }
 }
 
@@ -58,9 +55,8 @@ void Graph<VertexId, Resource, WeightType>::generate_star_graph(size_t n) {
         auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
             new Edge<VertexId, WeightType>(0, i, 1)
         );
-        edges_.push_back(*edge_ptr);
         adjacency_list_[0][i] = edge_ptr;
-        adjacency_list_[i][0] = edge_ptr;
+        adjacency_list_[i][0] = SharedPtr(edge_ptr);
     }
 }
 
@@ -79,18 +75,16 @@ void Graph<VertexId, Resource, WeightType>::generate_grid_graph(size_t m, size_t
                 auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
                     new Edge<VertexId, WeightType>(current, current + 1, 1)
                 );
-                edges_.push_back(*edge_ptr);
                 adjacency_list_[current][current + 1] = edge_ptr;
-                adjacency_list_[current + 1][current] = edge_ptr;
+                adjacency_list_[current + 1][current] = SharedPtr(edge_ptr);
             }
             
             if (i + 1 < m) {
                 auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
                     new Edge<VertexId, WeightType>(current, current + n, 1)
                 );
-                edges_.push_back(*edge_ptr);
                 adjacency_list_[current][current + n] = edge_ptr;
-                adjacency_list_[current + n][current] = edge_ptr;
+                adjacency_list_[current + n][current] = SharedPtr(edge_ptr);
             }
         }
     }
@@ -108,9 +102,8 @@ void Graph<VertexId, Resource, WeightType>::generate_hypercube_graph(size_t dime
                 auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
                     new Edge<VertexId, WeightType>(i, neighbor, 1)
                 );
-                edges_.push_back(*edge_ptr);
                 adjacency_list_[i][neighbor] = edge_ptr;
-                adjacency_list_[neighbor][i] = edge_ptr;
+                adjacency_list_[neighbor][i] = SharedPtr(edge_ptr);
             }
         }
     }
@@ -132,9 +125,8 @@ void Graph<VertexId, Resource, WeightType>::generate_tree(size_t n) {
         auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
             new Edge<VertexId, WeightType>(parent, i, 1)
         );
-        edges_.push_back(*edge_ptr);
         adjacency_list_[parent][i] = edge_ptr;
-        adjacency_list_[i][parent] = edge_ptr;
+        adjacency_list_[i][parent] = SharedPtr(edge_ptr);
     }
 }
 
@@ -156,9 +148,8 @@ void Graph<VertexId, Resource, WeightType>::generate_bipartite_graph(size_t m, s
                 auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
                     new Edge<VertexId, WeightType>(i, m + j, 1)
                 );
-                edges_.push_back(*edge_ptr);
                 adjacency_list_[i][m + j] = edge_ptr;
-                adjacency_list_[m + j][i] = edge_ptr;
+                adjacency_list_[m + j][i] = SharedPtr(edge_ptr);
             }
         }
     }
@@ -173,9 +164,8 @@ void Graph<VertexId, Resource, WeightType>::generate_complete_bipartite_graph(si
             auto edge_ptr = SharedPtr<Edge<VertexId, WeightType>>(
                 new Edge<VertexId, WeightType>(i, m + j, 1)
             );
-            edges_.push_back(*edge_ptr);
             adjacency_list_[i][m + j] = edge_ptr;
-            adjacency_list_[m + j][i] = edge_ptr;
+            adjacency_list_[m + j][i] = SharedPtr(edge_ptr);
         }
     }
 }

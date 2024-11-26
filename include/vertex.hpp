@@ -1,5 +1,5 @@
 #pragma once
-#include "../../Data_Structures/SmartPtrs/include/UniquePtr.hpp"
+#include "../dependencies/Data_Structures/SmartPtrs/include/UniquePtr.hpp"
 
 
 template <typename VertexId, typename Resource>

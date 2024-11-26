@@ -1,10 +1,9 @@
 #pragma once
 #include <cstddef>
 #include <nlohmann/json_fwd.hpp>
-#include "../../Data_Structures/Containers/Dynamic_Array.hpp"
-#include "../../Data_Structures/SmartPtrs/include/SharedPtr.hpp"
+#include "../dependencies/Data_Structures/Containers/Dynamic_Array.hpp"
+#include "../dependencies/Data_Structures/SmartPtrs/include/SharedPtr.hpp"
 #include <cerrno>
-#include <filesystem>
 #include <nlohmann/json.hpp>
 #include <unordered_map>
 #include "edge.hpp"
@@ -19,8 +18,6 @@ class Graph {
 private:
     std::unordered_map<VertexId, Vertex<VertexId, Resource>> vertex_pool_;
 
-    DynamicArray<Edge<VertexId, WeightType>> edges_;
-    
     std::unordered_map<VertexId, std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>> adjacency_list_;
 
     size_t vertex_count_;
