@@ -4,7 +4,7 @@ An educational implementation of an undirected graph data structure with algorit
 
 This project implements an efficient undirected graph with the following characteristics:
 
-- Template-based implementation supporting custom vertex IDs, vertex resources, and edge weights
+- Template-based implementation
 - O(1) amortized time complexity for basic operations (due to hash table-based storage)
 - Visualization of algorithms using [Manim](https://github.com/3b1b/manim) animation engine
 
