@@ -30,69 +30,45 @@ private:
 public:
 
     Graph(const Graph& other);
-
     explicit Graph(size_t vertex_count);
-    
     Graph& operator=(const Graph& other);
-    
     Graph(Graph&& other) noexcept;
-
     Graph() : vertex_count_(0) {};
-
     Graph& operator=(Graph&& other) noexcept;
-
     ~Graph() = default;
 
     void initialize_graph(size_t n);
 
     void add_edge(VertexId from, VertexId to, WeightType weight);
-
     void add_vertex(VertexId id);
     void add_vertex(VertexId id, const Resource& data);
 
     void remove_edge(VertexId from, VertexId to);
-
     void remove_vertex(VertexId vertex);
-
     void reset_parameters();
 
     json to_json();
-
     void save_to_json(const std::string& filename);
-
     void load_from_json(const std::string& filename);
-
     void save_json_to_file(const std::string& filename, const json& data);
 
-    const std::unordered_map<VertexId, std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>>& get_adjacency_list() const; 
-   
     bool operator==(const Graph& other) const;
     bool operator!=(const Graph& other) const;
 
     size_t get_degree(const VertexId& vertex) const;
-
+    const std::unordered_map<VertexId, std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>>& get_adjacency_list() const; 
     bool is_connected(const VertexId& from, const VertexId& to) const;
-
     void set_edge_weight(const VertexId& from, const VertexId& to, const WeightType& weight);
-
     const Vertex<VertexId, Resource>& get_vertex(const VertexId& id) const;
-
     const Edge<VertexId, WeightType>& get_edge(const VertexId& from, const VertexId& to) const; 
-    
     const WeightType& get_edge_weight(const VertexId& from, const VertexId& to) const;
-    
     const std::unordered_map<VertexId, Vertex<VertexId, Resource>>& get_vertices() const;
-
     const json get_json() const;
 
     bool has_vertex(const VertexId& vertex) const;
-
     bool has_edge(const VertexId& from, const VertexId& to) const;
-
     size_t vertex_count() const noexcept;
-
     size_t edge_count() const noexcept;
-
     bool is_empty() const noexcept;
     
     void clear();
@@ -102,7 +78,6 @@ public:
     auto cbegin() const noexcept { return adjacency_list_.cbegin(); }
     auto cend() const noexcept { return adjacency_list_.cend(); }
 
-
 // Algorithms
 
     // Graph traversal
@@ -111,21 +86,14 @@ public:
 
     // Connectivity
     DynamicArray<DynamicArray<VertexId>> find_connected_components(); // DONE 
-    void find_bridges_and_articulation_points(); // TODO
-    void find_biconnected_components(); // TODO
+
+    // Colors
+    void greedy_coloring(VertexId start);
+    void welsh_powell_coloring();
 
     // Shortest paths
-    void dijkstra(VertexId start);
-    void bellman_ford(VertexId start);
-    void floyd_warshall();
-    void shortest_paths_unweighted(VertexId start);
-
-    // Maximum flow and minimum cut
-    void ford_fulkerson(VertexId source, VertexId sink);
-    void edmonds_karp(VertexId source, VertexId sink);
-    void dinic(VertexId source, VertexId sink);
-    void goldberg_tarjan(VertexId source, VertexId sink);
-    void karger_stein();
+    void dijkstra(VertexId start); // DONE
+    void shortest_paths_unweighted(VertexId start); // DONE
 
     // Matchings
     void kuhn_max_matching();
@@ -138,7 +106,6 @@ public:
     void boruvka();
     void lca(VertexId u, VertexId v);
     void heavy_light_decomposition();
-
 
     // Graph Generators
     void generate_complete_graph(size_t n);
@@ -160,3 +127,5 @@ public:
 #include "../src/algorithms/components.tpp"
 #include "../src/generators.tpp"
 #include "../src/algorithms/dijkstra.tpp"
+#include "../src/algorithms/shortest_paths_unweighted.tpp"
+#include "../src/algorithms/coloring.tpp"
