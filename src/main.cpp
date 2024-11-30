@@ -306,7 +306,7 @@ private:
         std::cin >> start;
 
         try {
-            graph_->dijkstra(start);
+            graph_->greedy_coloring(start);
             std::cout << "\nGreedy coloring completed successfully!" << std::endl;
             run_visualization("greedy_coloring_visualization.py");
         } catch (const std::exception& e) {
@@ -344,7 +344,7 @@ private:
         std::cin >> start;
 
         try {
-            graph_->dijkstra(start);
+            graph_->shortest_paths_unweighted(start);
             std::cout << "\nShortest paths calculation completed successfully!" << std::endl;
             run_visualization("shortest_paths_visualization.py");
         } catch (const std::exception& e) {

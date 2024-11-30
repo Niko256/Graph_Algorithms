@@ -1,7 +1,6 @@
 #pragma once
 #include "../dependencies/Data_Structures/SmartPtrs/include/UniquePtr.hpp"
 
-
 template <typename VertexId, typename Resource>
 class Vertex {
 private:

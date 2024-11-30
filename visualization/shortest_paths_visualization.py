@@ -71,7 +71,7 @@ class ShortestPathsUnweightedVisualization(Scene):
                     run_time=0.8
                 )
                 
-                new_status = Text(f"Path to vertex {vertex_id}: distance = {distance}", 
+                new_status = Text(f"d({vertex_id}) = {distance}", 
                                 color="#4169E1").scale(0.7)
                 new_status.to_corner(DL, buff=0.5)
                 self.play(ReplacementTransform(status_text, new_status))
@@ -85,8 +85,4 @@ class ShortestPathsUnweightedVisualization(Scene):
                     run_time=0.5
                 )
 
-        final_status = Text("All shortest paths found!", color="#4169E1").scale(0.7)
-        final_status.to_corner(DL, buff=0.5)
-        self.play(ReplacementTransform(status_text, final_status))
-        
         self.wait(3)

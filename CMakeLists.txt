@@ -20,6 +20,12 @@ add_custom_target(python_env
     DEPENDS ${CMAKE_SOURCE_DIR}/visualization/venv/bin/activate
 )
 
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/visualization/run_plots.sh
+              ${CMAKE_CURRENT_BINARY_DIR}/run_plots.sh
+              COPYONLY)
+
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 find_package(GTest REQUIRED)
@@ -54,7 +60,12 @@ if(GTEST_FOUND)
         GTest::GTest 
         GTest::Main
     )
+
     
+    add_custom_command(TARGET tests POST_BUILD
+        COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/run_plots.sh
+    )   
+
     gtest_discover_tests(tests
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tests
         PROPERTIES

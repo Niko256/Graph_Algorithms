@@ -72,7 +72,7 @@ class GreedyColoringVisualization(Scene):
             vertex_id = int(vertex_id)
             color = vertex_colors[color_index % len(vertex_colors)]
             
-            neighbors = [n for n, _ in graph_data["edges"] if n == vertex_id or _ == vertex_id]
+            neighbors = [edge["from"] for edge in graph_data["edges"] if edge["from"] == vertex_id or edge["to"] == vertex_id] + [edge["to"] for edge in graph_data["edges"] if edge["from"] == vertex_id or edge["to"] == vertex_id]
             
             self.play(
                 vertex_objects[vertex_id].animate.set_fill(color, opacity=0.8),

@@ -9,9 +9,7 @@
 #include "edge.hpp"
 #include "vertex.hpp"
 
-
 using json = nlohmann::json;
-
 
 template <typename VertexId, typename Resource, typename WeightType>
 class Graph {
@@ -25,7 +23,6 @@ private:
     json log_json_;
     
     void resize(size_t new_size);
-
 
 public:
 

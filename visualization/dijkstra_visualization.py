@@ -19,6 +19,21 @@ class DijkstraVisualization(Scene):
         self.play(Write(title))
         self.play(title.animate.to_edge(UP, buff=0.5))
 
+        weights_table = VGroup()
+        weights_table_title = Text("Edge Weights:", color="#4169E1").scale(0.8)
+        weights_table.add(weights_table_title)
+        
+        for edge in graph_data["edges"]:
+            edge_text = Text(
+                f"{edge['from']} → {edge['to']}: {edge['weight']}", 
+                color="#B0C4DE"
+            ).scale(0.6)
+            weights_table.add(edge_text)
+        
+        weights_table.arrange(DOWN, aligned_edge=LEFT, buff=0.2)
+        weights_table.to_corner(LEFT + UP, buff=0.5)
+        self.play(Create(weights_table))
+
         vertices = range(graph_data["vertex_count"])
         radius = 2.5
         angle = 2 * PI / len(vertices)
@@ -32,12 +47,9 @@ class DijkstraVisualization(Scene):
             circle = Circle(radius=0.3, color=WHITE)
             circle.set_fill("#40E0D0", opacity=0.5)
             circle.move_to(pos)
-            
             vertex_label = Text(str(i)).scale(0.8).move_to(pos)
-            
-            distance = dijkstra_results["distances"].get(str(i), "∞")
-            distance_label = Text(f"d={distance}").scale(0.6)
-            distance_label.next_to(circle, DOWN, buff=0.1)
+            distance_pos = [pos[0], pos[1] + 0.5, 0]  
+            distance_label = Text("∞").scale(0.6).move_to(distance_pos)
             
             vertex_objects[i] = circle
             vertex_labels[i] = vertex_label
@@ -49,58 +61,89 @@ class DijkstraVisualization(Scene):
             end = vertex_objects[edge["to"]].get_center()
             line = Line(start, end, color="#B0C4DE")
             edges[(edge["from"], edge["to"])] = line
-            
-            weight_label = Text(str(edge["weight"])).scale(0.6)
-            weight_label.move_to((start + end) / 2)
-            edges[(edge["from"], edge["to"], "weight")] = weight_label
 
         self.play(
             *[Create(circle) for circle in vertex_objects.values()],
             *[Write(label) for label in vertex_labels.values()],
+            *[Write(label) for label in distance_labels.values()],
             run_time=2
         )
         self.play(
-            *[Create(edge) for edge in edges.values() if not isinstance(edge, Text)],
-            *[Write(edge) for edge in edges.values() if isinstance(edge, Text)],
+            *[Create(line) for line in edges.values()],
             run_time=1.5
         )
-        self.play(*[Write(label) for label in distance_labels.values()])
 
         legend = VGroup(
             Dot(color="#40E0D0").scale(1.5), Text("Unvisited", color="#40E0D0"),
-            Dot(color="#FF69B4").scale(1.5), Text("Processing", color="#FF69B4"),
-            Dot(color="#4169E1").scale(1.5), Text("Processed", color="#4169E1")
+            Dot(color="#FF69B4").scale(1.5), Text("Current", color="#FF69B4"),
+            Dot(color="#4169E1").scale(1.5), Text("Visited", color="#4169E1")
         ).arrange(RIGHT, buff=0.3).scale(0.8)
         legend.to_corner(DR, buff=0.5)
         self.play(Create(legend))
 
-        for vertex_id, path in dijkstra_results["paths"].items():
-            if len(path) > 1:
-                # Подсвечиваем путь
-                path_edges = []
-                for i in range(len(path) - 1):
-                    edge = edges.get((path[i], path[i+1]), edges.get((path[i+1], path[i])))
-                    if edge:
-                        path_edges.append(edge)
-                
-                self.play(
-                    *[edge.animate.set_color("#FF69B4").set_stroke(width=4) for edge in path_edges],
-                    vertex_objects[int(vertex_id)].animate.set_color("#4169E1"),
-                    run_time=0.8
-                )
-                
-                new_distance = Text(
-                    f"d={dijkstra_results['distances'][vertex_id]}", 
-                    color="#4169E1"
-                ).scale(0.6)
-                new_distance.move_to(distance_labels[int(vertex_id)])
-                self.play(
-                    Transform(distance_labels[int(vertex_id)], new_distance),
-                    run_time=0.5
-                )
-
-        final_status = Text("Shortest paths found!", color="#4169E1").scale(0.7)
-        final_status.to_corner(DL, buff=0.5)
-        self.play(Write(final_status))
+        current_path_text = Text("").scale(0.7)
+        current_path_text.to_edge(DOWN, buff=0.5)
         
-        self.wait(3)
+        self.play(
+            vertex_objects[start_vertex].animate.set_color("#FF69B4"),
+            Transform(
+                distance_labels[start_vertex],
+                Text("0").scale(0.6).move_to(distance_labels[start_vertex].get_center())
+            )
+        )
+
+        for vertex_id, paths in dijkstra_results["paths"].items():
+            vertex_id = int(vertex_id)
+            if vertex_id != start_vertex:
+                path = paths
+                distance = dijkstra_results["distances"][str(vertex_id)]
+        
+                path_str = f"Path to {vertex_id}: {' → '.join(map(str, path))} (Total: {distance})"
+                new_path_text = Text(path_str, color="#4169E1").scale(0.7)
+                new_path_text.to_edge(DOWN, buff=0.5)
+        
+                self.play(Transform(current_path_text, new_path_text))
+        
+                for i in range(len(path) - 1):
+                    current, next_vertex = path[i], path[i + 1]
+                    edge = edges.get((current, next_vertex), edges.get((next_vertex, current)))
+            
+                    try:
+                        weight_index = next(
+                            i for i, item in enumerate(weights_table) 
+                            if str(current) in item.text and str(next_vertex) in item.text
+                        )
+                
+                        self.play(
+                            weights_table[weight_index].animate.set_color("#FF69B4"),
+                            vertex_objects[next_vertex].animate.set_color("#FF69B4"),
+                            edge.animate.set_color("#FF69B4").set_stroke(width=4),
+                            Transform(
+                                distance_labels[next_vertex],
+                                Text(str(distance)).scale(0.6).move_to(distance_labels[next_vertex].get_center())
+                            ),
+                            run_time=0.8
+                        )
+                
+                        self.play(
+                            weights_table[weight_index].animate.set_color("#4169E1"),
+                            vertex_objects[current].animate.set_color("#4169E1"),
+                            run_time=0.5
+                        )
+                    except StopIteration:
+                        self.play(
+                            vertex_objects[next_vertex].animate.set_color("#FF69B4"),
+                            edge.animate.set_color("#FF69B4").set_stroke(width=4),
+                            Transform(
+                                distance_labels[next_vertex],
+                                Text(str(distance)).scale(0.6).move_to(distance_labels[next_vertex].get_center())
+                            ),
+                            run_time=0.8
+                        )
+                
+                        self.play(
+                            vertex_objects[current].animate.set_color("#4169E1"),
+                            run_time=0.5
+                        )
+
+            self.wait(3)
