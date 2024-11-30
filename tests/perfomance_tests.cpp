@@ -64,5 +64,11 @@ TEST_F(GraphPerformanceTest, LargeGraphOperations) {
             graph.find_connected_components();
         });
         SaveBenchmarkResult("connected_components", size, cc_time);
+
+        // Test coloring
+        double coloring_time = BenchmarkOperation([&]() {
+            graph.greedy_coloring(0);
+        });
+        SaveBenchmarkResult("greedy_coloring", size, coloring_time);
     }
 }

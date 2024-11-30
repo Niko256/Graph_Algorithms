@@ -48,7 +48,7 @@ private:
                   << "2. Path Finding Algorithms\n"
                   << "3. Connectivity Algorithms\n"
                   << "4. Tree Algorithms\n"
-                  << "5. Flow Algorithms\n"
+                  << "5. Coloring algorithms\n"
                   << "6. Back to Main Menu\n\n"
                   << "Choose option: ";
     }
@@ -209,9 +209,7 @@ private:
                     case 2: handle_shortest_path_algorithms(); break; 
                     case 3: handle_connectivity_algorithms(); break;
                     case 4: // Tree algorithms - TODO
-                    case 5: // Flow algorithms - TODO
-                        std::cout << "\nFeature coming soon!\n";
-                        break;
+                    case 5: handle_coloring_algorithms(); break;
                     case 6: return;
                     default: std::cout << "\nInvalid option!" << std::endl;
                 }
@@ -262,6 +260,7 @@ private:
     void handle_shortest_path_algorithms() {
         std::cout << "\nShortest Path Algorithms: \n"
                   << "1. Run and Visualize Dijkstra\n"
+                  << "2. Run and Visualize Unweighted Shorted Paths\n"
                   << "Choose option: ";
         int choice;
         std::cin >> choice;
@@ -269,10 +268,49 @@ private:
         try {
             switch (choice) {
                 case 1: run_dijkstra_and_visualize(); break;
+                case 2: run_shortest_paths_and_visualize(); break;
                 default: std::cout << "Invalid option!" << std::endl;
             }
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
+
+
+    void handle_coloring_algorithms() {
+        std::cout << "\nColoring algorithms:\n"
+                  << "1. Greedy Coloring\n"
+                  << "Choose option: ";
+
+        int choice;
+        std::cin >> choice;
+
+        try {
+            switch(choice) {
+                case 1: run_greedy_coloring_and_visualize(); break;
+                default: std::cout << "\nInvalid option!" << std::endl;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
+
+    void run_greedy_coloring_and_visualize() {
+        if (!graph_ || graph_->is_empty()) {
+            std::cout << "\nPlease create graph first!" << std::endl;
+            return;
+        }
+
+        std::cout << "Enter start vertex (0 to " << graph_->vertex_count() - 1 << "): ";
+        int start;
+        std::cin >> start;
+
+        try {
+            graph_->dijkstra(start);
+            std::cout << "\nGreedy coloring completed successfully!" << std::endl;
+            run_visualization("greedy_coloring_visualization.py");
+        } catch (const std::exception& e) {
+            std::cerr << "Error during greedy coloring: " << e.what() << std::endl;
         }
     }
 
@@ -292,6 +330,25 @@ private:
             run_visualization("dijkstra_visualization.py");
         } catch (const std::exception& e) {
             std::cerr << "Error during Dijkstra algorithm: " << e.what() << std::endl;
+        }
+    }
+
+    void run_shortest_paths_and_visualize() {
+        if (!graph_ || graph_->is_empty()) {
+            std::cout << "\nPlease create graph first!" << std::endl;
+            return;
+        }
+
+        std::cout << "Enter start vertex (0 to " << graph_->vertex_count() - 1 << "): ";
+        int start;
+        std::cin >> start;
+
+        try {
+            graph_->dijkstra(start);
+            std::cout << "\nShortest paths calculation completed successfully!" << std::endl;
+            run_visualization("shortest_paths_visualization.py");
+        } catch (const std::exception& e) {
+            std::cerr << "Error during shortest paths calculation: " << e.what() << std::endl;
         }
     }
 

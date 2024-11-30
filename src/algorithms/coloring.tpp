@@ -28,38 +28,40 @@ void Graph<VertexId, Resource, WeightType>::greedy_coloring(VertexId start) {
 
     std::vector<bool> used_colors(vertex_count_, false);
     
-    std::vector<VertexId> sorted_vertices;
-    sorted_vertices.reserve(vertex_pool_.size());
+    std::vector<VertexId> vertices;
+    vertices.reserve(vertex_pool_.size());
+    
     for (const auto& [vertex_id, _] : vertex_pool_) {
         if (vertex_id != start) {
-            sorted_vertices.push_back(vertex_id);
+            vertices.push_back(vertex_id);
         }
     }
     
-    std::sort(sorted_vertices.begin(), sorted_vertices.end(),
+    std::sort(vertices.begin(), vertices.end(),
         [this](const VertexId& a, const VertexId& b) {
-            return adjacency_list_[a].size() > adjacency_list_[b].size();
+            return get_degree(a) > get_degree(b);
         });
+    
+    vertices.insert(vertices.begin(), start);
 
     vertex_pool_[start].set_color(0);
-    sorted_vertices.insert(sorted_vertices.begin(), start);
 
-    for (const VertexId& vertex_id : sorted_vertices) {
+    for (const auto& current : vertices) {
         std::fill(used_colors.begin(), used_colors.end(), false);
-
-        for (const auto& [neighbour, _] : adjacency_list_[vertex_id]) {
-            size_t neighbour_color = vertex_pool_[neighbour].get_color();
-            if (neighbour_color < vertex_count_) {
-                used_colors[neighbour_color] = true;
+        
+        for (const auto& [neighbor, _] : adjacency_list_[current]) {
+            int neighbor_color = vertex_pool_[neighbor].get_color();
+            if (neighbor_color >= 0) {
+                used_colors[neighbor_color] = true;
             }
         }
-
-        size_t new_color = 0;
-        while (new_color < vertex_count_ && used_colors[new_color]) {
-            ++new_color;
+        
+        int color = 0;
+        while (color < vertex_count_ && used_colors[color]) {
+            ++color;
         }
-
-        vertex_pool_[vertex_id].set_color(new_color);
+        
+        vertex_pool_[current].set_color(color);
     }
 
     json result;
