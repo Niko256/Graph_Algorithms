@@ -83,6 +83,12 @@ private:
         std::cout << "Enter number of vertices: ";
         std::cin >> vertex_count;
 
+        // Validate vertex count
+        if (vertex_count <= 0) {
+            std::cout << "\nError: Number of vertices must be positive." << std::endl;
+            return;
+        }
+
         // Create a new graph instance with the specified vertex count
         graph_ = std::make_unique<Graph<int, int, int>>();
         graph_->initialize_graph(vertex_count); // This will clear any existing graph and set up a new one
@@ -186,7 +192,7 @@ private:
                 switch(choice) {
                     case 1: handle_manual_creation(); break;
                     case 2: handle_topology_selection(); break;
-                    case 3: run_visualization("graph_visualization.py"); break;
+                    case 3: run_visualization("graph_visualization_static.py"); break;
                     case 4: handle_edit_graph(); break;
                     case 5: return;
                     default: std::cout << "\nInvalid option!" << std::endl;
@@ -208,7 +214,7 @@ private:
                     case 1: handle_traversal_algorithms(); break;
                     case 2: handle_shortest_path_algorithms(); break; 
                     case 3: handle_connectivity_algorithms(); break;
-                    case 4: // Tree algorithms - TODO
+                    case 4: handle_tree_algorithms(); break;
                     case 5: handle_coloring_algorithms(); break;
                     case 6: return;
                     default: std::cout << "\nInvalid option!" << std::endl;
@@ -223,6 +229,7 @@ private:
         std::cout << "\nTraversal Algorithms:\n"
                   << "1. Run and Visualize BFS\n"
                   << "2. Run and Visualize DFS\n"
+                  << "3. Back to Algorithm Menu\n"
                   << "Choose option: ";
 
         int choice;
@@ -232,6 +239,7 @@ private:
             switch(choice) {
                 case 1: run_bfs_and_visualize(); break;
                 case 2: run_dfs_and_visualize(); break;
+                case 3: return;
                 default: std::cout << "Invalid option!" << std::endl;
             }
         } catch (const std::exception& e) {
@@ -242,6 +250,7 @@ private:
     void handle_connectivity_algorithms() {
         std::cout << "\nConnectivity Algorithms:\n"
                   << "1. Find and Visualize Connected Components\n"
+                  << "2. Back to Algorithm Menu\n"
                   << "Choose option: ";
 
         int choice;
@@ -250,6 +259,7 @@ private:
         try {
             switch(choice) {
                 case 1: find_components_and_visualize(); break;
+                case 2: return;
                 default: std::cout << "\nInvalid option!" << std::endl;
             }
         } catch (const std::exception& e) {
@@ -261,6 +271,7 @@ private:
         std::cout << "\nShortest Path Algorithms: \n"
                   << "1. Run and Visualize Dijkstra\n"
                   << "2. Run and Visualize Unweighted Shorted Paths\n"
+                  << "3. Back to Algorithm Menu\n"
                   << "Choose option: ";
         int choice;
         std::cin >> choice;
@@ -269,6 +280,7 @@ private:
             switch (choice) {
                 case 1: run_dijkstra_and_visualize(); break;
                 case 2: run_shortest_paths_and_visualize(); break;
+                case 3: return;
                 default: std::cout << "Invalid option!" << std::endl;
             }
         } catch (const std::exception& e) {
@@ -276,10 +288,29 @@ private:
         }
     }
 
+    void handle_tree_algorithms() {
+        std::cout << "\nTree Algorithms:\n"
+                  << "This feature coming soon!\n"
+                  << "1. Back to Algorithm Menu\n"
+                  << "Choose option: ";
+
+        int choice;
+        std::cin >> choice;
+
+        try {
+            switch (choice) {
+                case 1: return;
+                default: std::cout << "Invalid option!" << std::endl;
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
+    }
 
     void handle_coloring_algorithms() {
         std::cout << "\nColoring algorithms:\n"
                   << "1. Greedy Coloring\n"
+                  << "2. Back to Algorithm Menu\n"
                   << "Choose option: ";
 
         int choice;
@@ -288,6 +319,7 @@ private:
         try {
             switch(choice) {
                 case 1: run_greedy_coloring_and_visualize(); break;
+                case 2: return;
                 default: std::cout << "\nInvalid option!" << std::endl;
             }
         } catch (const std::exception& e) {
@@ -354,11 +386,24 @@ private:
 
 
     void run_visualization(const std::string& script_name) {
-        std::string command = "../visualization/run_manim.sh " + script_name;
-        if (std::system(command.c_str()) != 0) {
-            std::cerr << "Error running visualization script: " << script_name << std::endl;
+
+        if (script_name == "graph_visualization.py") {
+            std::string base = "../visualization/run_manim.sh";
+            std::string quality_params = "-s -qk";
+
+            std::string command = base + script_name + " " + quality_params;
+            if (std::system(command.c_str()) != 0) {
+                std::cerr << "Error running visualization script" << std::endl;
+            } else {
+                std::cout << "\nGraph structure image saved succesfully!" << std::endl;
+            }
         } else {
-            std::cout << "\nVisualization completed successfully!" << std::endl;
+            std::string command = "../visualization/run_manim.sh " + script_name;
+            if (std::system(command.c_str()) != 0) {
+                std::cerr << "Error running visualization script: " << script_name << std::endl;
+            } else {
+                std::cout << "\nVisualization completed successfully!" << std::endl;
+            }
         }
     }
 

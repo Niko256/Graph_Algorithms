@@ -1,9 +1,11 @@
 #include "../include/graph.hpp"
 #include <random>
+#include <stdexcept>
 
 
 template <typename VertexId, typename Resource, typename WeightType>
 void Graph<VertexId, Resource, WeightType>::generate_complete_graph(size_t n) {
+
     initialize_graph(n);
     
     for (size_t i = 0; i < n; ++i) {
