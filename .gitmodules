@@ -1,3 +1,10 @@
 [submodule "dependencies/Data_Structures"]
 	path = dependencies/Data_Structures
-	url = git@github.com:Niko256/Data_Structures.git
+    url = git@github.com:Niko256/Data_Structures.git
+
+[submodule "external/cityhash"]
+    path = external/cityhash
+    url = https://github.com/google/cityhash.git
+[submodule "external/murmur3"]
+    path = external/murmur3
+    url = https://github.com/aappleby/smhasher.git
