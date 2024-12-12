@@ -44,7 +44,7 @@ void Graph<VertexId, Resource, WeightType>::initialize_graph(size_t n) {
     // Add vertices
     for(size_t i = 0; i < n; ++i) {
         vertex_pool_[i] = Vertex<VertexId, Resource>(i);
-        adjacency_list_[i] = std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>();
+        adjacency_list_[i] = HashTable<VertexId, SharedPtr<Edge<VertexId, WeightType>>>();
     }
 }
 
@@ -121,7 +121,7 @@ void Graph<VertexId, Resource, WeightType>::add_vertex(VertexId id, const Resour
     }
 
     vertex_pool_[id] = Vertex<VertexId, Resource>(id, data);
-    adjacency_list_[id] = std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>();
+    adjacency_list_[id] = HashTable<VertexId, SharedPtr<Edge<VertexId, WeightType>>>();
 
     ++vertex_count_;
 }
@@ -173,7 +173,7 @@ json Graph<VertexId, Resource, WeightType>::to_json() {
     
     j["vertex_count"] = vertex_count_;
     
-    std::unordered_map<VertexId, size_t> vertex_mapping;
+    HashTable<VertexId, size_t> vertex_mapping;
     size_t new_index = 0;
 
     for (const auto& [id, vertex] : vertex_pool_) {
@@ -251,7 +251,7 @@ const json Graph<VertexId, Resource, WeightType>::get_json() const {
 }
 
 template <typename VertexId, typename Resource, typename WeightType>
-const std::unordered_map<VertexId, std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>>& 
+const HashTable<VertexId, HashTable<VertexId, SharedPtr<Edge<VertexId, WeightType>>>>& 
 Graph<VertexId, Resource, WeightType>::get_adjacency_list() const {
     return adjacency_list_;
 }
@@ -262,7 +262,8 @@ size_t Graph<VertexId, Resource, WeightType>::get_degree(const VertexId& vertex)
     if (!has_vertex(vertex)) {
         throw std::invalid_argument("Vertex does not exist");
     }
-    return adjacency_list_.at(vertex).size();
+    auto it = adjacency_list_.find(vertex);
+    return it != adjacency_list_.end() ? (*it).second.size() : 0;
 }
 
 template <typename VertexId, typename Resource, typename WeightType>
@@ -298,7 +299,7 @@ const Edge<VertexId, WeightType>& Graph<VertexId, Resource, WeightType>::get_edg
 }
 
 template <typename VertexId, typename Resource, typename WeightType>
-const std::unordered_map<VertexId, Vertex<VertexId, Resource>>& Graph<VertexId, Resource, WeightType>::get_vertices() const {
+const HashTable<VertexId, Vertex<VertexId, Resource>>& Graph<VertexId, Resource, WeightType>::get_vertices() const {
     return vertex_pool_;
 }
 
@@ -310,8 +311,7 @@ bool Graph<VertexId, Resource, WeightType>::has_vertex(const VertexId& vertex) c
 template <typename VertexId, typename Resource, typename WeightType>
 bool Graph<VertexId, Resource, WeightType>::has_edge(const VertexId& from, const VertexId& to) const {
     auto it = adjacency_list_.find(from);
-    if (it == adjacency_list_.end()) return false;
-    return it->second.find(to) != it->second.end();
+    return it != adjacency_list_.end() && (*it).second.contains(to);
 }
 
 template <typename VertexId, typename Resource, typename WeightType>

@@ -9,6 +9,7 @@ private:
     bool is_bridge_ = false;
 
 public:
+
     Edge() : from_(), to_(), weight_() {}
 
     Edge(VertexId f, VertexId t, W w);
