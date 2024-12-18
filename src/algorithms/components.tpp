@@ -48,10 +48,7 @@ DynamicArray<DynamicArray<VertexId>> Graph<VertexId, Resource, WeightType>::find
                 auto adj_it = adjacency_list_.find(current);
                 if (adj_it != adjacency_list_.end()) {
                     // Process all neighbors
-
-                    auto adjacencies = (*adj_it).second;
-
-                    for (const auto& [neighbor_id, edge] : adjacencies) {
+                    for (const auto& [neighbor_id, edge] : adj_it->second) {
                         if (!visited[neighbor_id]) {
                             stack.push(neighbor_id);
                             visited[neighbor_id] = true;
