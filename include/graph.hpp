@@ -12,10 +12,11 @@ using json = nlohmann::json;
 
 template <typename VertexId, typename Resource, typename WeightType>
 class Graph {
-private:
-    std::unordered_map<VertexId, Vertex<VertexId, Resource>> vertex_pool_;
+  private:
 
-    std::unordered_map<VertexId, std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>> adjacency_list_;
+    HashTable<VertexId, Vertex<VertexId, Resource>> vertex_pool_;
+
+    HashTable<VertexId, HashTable<VertexId, SharedPtr<Edge<VertexId, WeightType>>>> adjacency_list_;
 
     size_t vertex_count_;
 
@@ -23,7 +24,7 @@ private:
     
     void resize(size_t new_size);
 
-public:
+  public:
 
     Graph(const Graph& other);
     explicit Graph(size_t vertex_count);
@@ -52,13 +53,13 @@ public:
     bool operator!=(const Graph& other) const;
 
     size_t get_degree(const VertexId& vertex) const;
-    const std::unordered_map<VertexId, std::unordered_map<VertexId, SharedPtr<Edge<VertexId, WeightType>>>>& get_adjacency_list() const; 
+    const HashTable<VertexId, HashTable<VertexId, SharedPtr<Edge<VertexId, WeightType>>>>& get_adjacency_list() const; 
     bool is_connected(const VertexId& from, const VertexId& to) const;
     void set_edge_weight(const VertexId& from, const VertexId& to, const WeightType& weight);
     const Vertex<VertexId, Resource>& get_vertex(const VertexId& id) const;
     const Edge<VertexId, WeightType>& get_edge(const VertexId& from, const VertexId& to) const; 
     const WeightType& get_edge_weight(const VertexId& from, const VertexId& to) const;
-    const std::unordered_map<VertexId, Vertex<VertexId, Resource>>& get_vertices() const;
+    const HashTable<VertexId, Vertex<VertexId, Resource>>& get_vertices() const;
     const json get_json() const;
 
     bool has_vertex(const VertexId& vertex) const;

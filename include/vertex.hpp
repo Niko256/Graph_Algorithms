@@ -1,5 +1,6 @@
 #pragma once
 #include "../dependencies/Data_Structures/SmartPtrs/include/UniquePtr.hpp"
+#include <unordered_map>
 
 template <typename VertexId, typename Resource>
 class Vertex {
@@ -45,4 +46,6 @@ public:
     void set_data(const UniquePtr<Resource>& data);
 };
 
+template <typename Key, typename Value>
+using HashTable = std::unordered_map<Key, Value>;
 #include "../src/vertex.tpp"

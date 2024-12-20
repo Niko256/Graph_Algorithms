@@ -18,8 +18,8 @@ void Graph<VertexId, Resource, WeightType>::shortest_paths_unweighted(VertexId s
 
     reset_parameters();
 
-    std::unordered_map<VertexId, int> distances;
-    std::unordered_map<VertexId, VertexId> previous;
+    HashTable<VertexId, int> distances;
+    HashTable<VertexId, VertexId> previous;
     
     for (const auto& [vertex_id, _] : vertex_pool_) {
         distances[vertex_id] = -1; // -1 means infinity 

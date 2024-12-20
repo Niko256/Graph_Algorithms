@@ -22,7 +22,7 @@ DynamicArray<DynamicArray<VertexId>> Graph<VertexId, Resource, WeightType>::find
     }
 
     DynamicArray<DynamicArray<VertexId>> components;
-    std::unordered_map<VertexId, bool> visited;
+    HashTable<VertexId, bool> visited;
 
     // Initialize visited map for all vertices
     for (const auto& [id, _] : vertex_pool_) {

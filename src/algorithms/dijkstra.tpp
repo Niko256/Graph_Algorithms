@@ -38,9 +38,9 @@ void Graph<VertexId, Resource, WeightType>::dijkstra(VertexId start) {
     parameters["start_vertex"] = start;
     save_json_to_file("dijkstra_parameters.json", parameters);
 
-    std::unordered_map<VertexId, WeightType> distances;
-    std::unordered_map<VertexId, VertexId> previous;
-    std::unordered_map<VertexId, size_t> visit_count;
+    HashTable<VertexId, WeightType> distances;
+    HashTable<VertexId, VertexId> previous;
+    HashTable<VertexId, size_t> visit_count;
     PriorityQueue<Pair<WeightType, VertexId>> pq;
 
     // Initialize distances

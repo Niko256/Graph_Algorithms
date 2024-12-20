@@ -2,13 +2,16 @@
 
 template <typename VertexId, typename W>
 class Edge {
-private:
+  private:
     VertexId from_;
+
     VertexId to_;
+    
     W weight_;
+    
     bool is_bridge_ = false;
 
-public:
+  public:
 
     Edge() : from_(), to_(), weight_() {}
 

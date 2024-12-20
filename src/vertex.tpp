@@ -84,6 +84,8 @@ const VertexId& Vertex<VertexId, Resource>::get_id() const {
     return id_;
 }
 
+template <typename Key, typename Value>
+using HashTable = std::unordered_map<Key, Value>;
 template <typename VertexId, typename Resource>
 const UniquePtr<Resource>& Vertex<VertexId, Resource>::get_data() const {
     return data_;
