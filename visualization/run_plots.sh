@@ -17,7 +17,7 @@ fi
 
 source "$VENV_DIR/bin/activate"
 
-pip install pandas matplotlib seaborn
+pip install pandas matplotlib seaborn adjustText
 
 python3 "$VISUALIZATION_DIR/perfomance_plots.py"
 

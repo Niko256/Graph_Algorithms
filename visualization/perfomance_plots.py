@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
+from adjustText import adjust_text
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(script_dir)
@@ -15,53 +15,49 @@ if not os.path.exists(csv_path):
 
 df = pd.read_csv(csv_path, names=['algorithm', 'vertices', 'duration'])
 
-sns.set_theme()  
+plt.style.use('dark_background')
+sns.set_palette("husl")
 
-plt.figure(figsize=(12, 8), dpi=300)
+plt.figure(figsize=(10, 6), dpi=300)
+
+plt.gca().set_facecolor('#1C1C1C')
+plt.gcf().set_facecolor('#1C1C1C')
+
+markers = ['o', 's', 'D', '^', 'v']
 
 sns.lineplot(data=df, x='vertices', y='duration', hue='algorithm', 
-             marker='o', linewidth=2, markersize=8)
+             style='algorithm', markers=markers, dashes=False, linewidth=1.5,
+             markersize=8)
 
-plt.xlabel('Количество вершин', fontsize=12)
-plt.ylabel('Время выполнения (мс)', fontsize=12)
-plt.title('Сравнение производительности алгоритмов на графе', fontsize=14, pad=20)
+plt.xlabel('Number of Vertices', fontsize=12, color='white')
+plt.ylabel('Execution Time (ms)', fontsize=12, color='white')
+plt.title('Algorithm Performance Comparison', fontsize=14, pad=15, color='white')
 
 plt.yscale('log')
+plt.xscale('log')
 
-plt.grid(True, which="both", ls="-", alpha=0.2)
+plt.grid(True, which="both", ls="--", alpha=0.2, color='gray')
 
-plt.legend(title='Алгоритмы', 
-          title_fontsize=12,
-          fontsize=10, 
-          bbox_to_anchor=(1.05, 1), 
-          loc='upper left')
+plt.tick_params(colors='white')
 
-for algorithm in df['algorithm'].unique():
-    data = df[df['algorithm'] == algorithm]
-    for x, y in zip(data['vertices'], data['duration']):
-        plt.annotate(f'{y:.1f}ms', 
-                    (x, y), 
-                    textcoords="offset points", 
-                    xytext=(0,10), 
-                    ha='center',
-                    fontsize=8)
+# Ось X (количество вершин)
+x_ticks = [1000, 5000, 10000, 50000, 100000]
+x_tick_labels = [f"{x}" for x in x_ticks]
+plt.xticks(x_ticks, x_tick_labels, fontsize=10, color='white')
+
+y_ticks = [1, 10, 100, 1000, 10000, 100000]
+y_tick_labels = [f"{y}" for y in y_ticks]
+plt.yticks(y_ticks, y_tick_labels, fontsize=10, color='white')
+
+legend = plt.legend(title='Algorithms', title_fontsize=12, fontsize=10, 
+                   bbox_to_anchor=(1.05, 1), loc='upper left')
+legend.get_title().set_color('white')
+for text in legend.get_texts():
+    text.set_color('white')
 
 plt.tight_layout()
 
 plt.savefig(os.path.join(os.path.dirname(csv_path), 'performance_analysis.png'), 
-            dpi=300, 
-            bbox_inches='tight')
-plt.figure(figsize=(12, 8), dpi=300)
+            bbox_inches='tight', facecolor='#1C1C1C')
 
-sns.boxplot(x='algorithm', y='duration', data=df)
-plt.xticks(rotation=45)
-plt.xlabel('Алгоритм', fontsize=12)
-plt.ylabel('Время выполнения (мс)', fontsize=12)
-plt.title('Распределение времени выполнения по алгоритмам', fontsize=14)
-plt.yscale('log')
-
-plt.tight_layout()
-plt.savefig(os.path.join(os.path.dirname(csv_path), 'algorithm_comparison.png'), 
-            dpi=300)
-
-print("Графики сохранены в директории build/")
+plt.show()
