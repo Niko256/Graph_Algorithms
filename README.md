@@ -1,20 +1,36 @@
-An educational implementation of an undirected graph data structure with algorithms and visualizations.
+An educational implementation of graph data structures and algorithms with interactive visualizations
 
 ## Project Overview
 
-This project implements an efficient undirected graph with the following characteristics:
+### Graph Implementation
+- Template-based undirected weighted graph
+- Average O(1) time complexity for basic operations (hash table-based storage)
+- JSON serialization support
+- Smart pointer-based memory management
 
-- Template-based implementation
-- O(1) amortized time complexity for basic operations (due to hash table-based storage)
-- Visualization of algorithms using [Manim](https://github.com/3b1b/manim) animation engine
+### Graph Generators
+- Complete Graph
+- Path Graph
+- Cycle Graph
+- Star Graph
+- Random Tree
+- Bipartite Graph
+- Grid Graph
+- Hypercube Graph
+
+
+### Visualization
+Each algorithm includes animated visualization using Manim showing step-by-step execution
 
 ## Prerequisites
 
 - C++20 compatible compiler
 - CMake 3.30 or higher
 - Python 3.8+ (for visualization)
-- Google Test
-- nlohmann_json 3.11.3+
+- Dependencies:
+  - Google Test
+  - nlohmann_json 3.11.3+
+  - Manim (installed automatically)
 
 ## Installation
 
@@ -30,4 +46,16 @@ Then build:
 mkdir build && cd build
 cmake ..
 make
+```
+
+### Build tests
+```bash
+make tests
+./tests
+```
+
+### Build project without tests
+```bash
+make graphs
+./graphs
 ```
