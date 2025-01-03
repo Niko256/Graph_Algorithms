@@ -1,6 +1,6 @@
 [submodule "dependencies/Data_Structures"]
 	path = dependencies/Data_Structures
-    url = git@github.com:Niko256/Data_Structures.git
+    url = https://github.com/Niko256/Data_Structures.git
 
 [submodule "external/cityhash"]
     path = external/cityhash
