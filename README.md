@@ -29,7 +29,6 @@ Each algorithm includes animated visualization using Manim showing step-by-step 
 - Python 3.8+ (for visualization)
 - Dependencies:
   - Google Test
-  - nlohmann_json 3.11.3+
   - Manim (installed automatically)
 
 ## Installation
