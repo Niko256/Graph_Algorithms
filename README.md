@@ -37,7 +37,7 @@ Each algorithm includes animated visualization using Manim showing step-by-step 
 **Important**: This repository uses git submodules. Clone with:
 
 ```bash
-git clone --recursive git@github.com:Niko256/Graph_Algorithms.git
+git clone --recursive https://github.com/Niko256/Graph_Algorithms.git
 ```
 
 Then build:
