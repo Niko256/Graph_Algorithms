@@ -26,10 +26,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/visualization/run_plots.sh
               COPYONLY)
 
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/dependencies/json/include
+)
 
 find_package(GTest REQUIRED)
-find_package(nlohmann_json 3.11.3 REQUIRED)
 
 file(GLOB_RECURSE ALGORITHM_FILES src/algorithms/*.tpp)
 file(GLOB_RECURSE GRAPH_FILES src/graph.tpp)
@@ -42,7 +44,6 @@ add_library(graphs_lib STATIC
 set_target_properties(graphs_lib PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(graphs_lib PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(graphs_lib PUBLIC nlohmann_json::nlohmann_json)
 
 add_executable(graphs src/main.cpp)
 target_link_libraries(graphs PRIVATE graphs_lib)

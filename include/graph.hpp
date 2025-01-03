@@ -4,7 +4,7 @@
 #include "../dependencies/Data_Structures/Containers/Dynamic_Array.hpp"
 #include "../dependencies/Data_Structures/SmartPtrs/include/SharedPtr.hpp"
 #include <cerrno>
-#include <nlohmann/json.hpp>
+#include "../dependencies/json/include/nlohmann/json.hpp"
 #include "edge.hpp"
 #include "vertex.hpp"
 
