@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 #include "../include/graph.hpp"
 #include <fstream>
-#include <nlohmann/json.hpp>
-
-using json = nlohmann::json;
 
 class ShortestPathsTest : public ::testing::Test {
 protected:

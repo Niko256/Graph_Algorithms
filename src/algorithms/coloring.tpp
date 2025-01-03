@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
 
 
 template <typename VertexId, typename Resource, typename WeightType>

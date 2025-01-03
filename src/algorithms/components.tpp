@@ -5,9 +5,6 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
-
-using json = nlohmann::json;
 
 
 template <typename VertexId, typename Resource, typename WeightType>
